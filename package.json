@@ -1,36 +1,31 @@
 {
-  "name": "typescript-library-skeleton",
-  "version": "0.0.101",
-  "description": "Semver-oriented TypeScript library skeleton.",
-  "main": "dist/index.js",
-  "bin": {
-    "TODO-typescript-library-skeleton": "dist/cli.js"
-  },
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "name": "@oresoftware/linked-queue",
+  "version": "0.0.1001",
+  "description": "Linked queue for constatnt/linear time functionality.",
+  "main": "linked-queue.js",
   "scripts": {
-    "test": "suman test",
-    "postinstall": "./assets/postinstall.sh"
+    "test": "suman test"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ORESoftware/typescript-library-skeleton.git"
+    "url": "git+https://github.com/ORESoftware/linked-queue.git"
   },
   "keywords": [
-    "typescript",
-    "library",
-    "skeleton",
-    "scaffold"
+    "linked",
+    "queue",
+    "doubly",
+    "linked",
+    "linear",
+    "constant"
   ],
-  "author": "TODO Yo.Mama",
-  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "Olegzandr VD",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ORESoftware/typescript-library-skeleton/issues"
+    "url": "https://github.com/ORESoftware/linked-queue/issues"
   },
-  "homepage": "https://github.com/ORESoftware/typescript-library-skeleton#readme",
-  "dependencies": {},
+  "homepage": "https://github.com/ORESoftware/linked-queue#readme",
   "devDependencies": {
-    "@types/core-js": "^0.9.46",
-    "@types/node": "^9.6.2"
+    "@types/core-js": "^2.5.0",
+    "@types/node": "^10.3.0"
   }
 }
