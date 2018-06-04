@@ -273,8 +273,7 @@ export class LinkedQueue {
 
     if (!h) {
       if (this.tail) {
-        console.error('warning: tail should not be defined if there is no head.')
-        // throw new Error('tail should not be defined if there is no head.');
+        throw new Error('tail should not be defined if there is no head.');
       }
       return null;
     }
@@ -282,8 +281,10 @@ export class LinkedQueue {
     this.length--;
     this.lookup.delete(h.key);
     this.head = h.after || null;
+    if (!this.head) {
+      this.tail = null;
+    }
     return h;
-
   }
 
   shift(): LinkedQueueValue {
@@ -304,14 +305,16 @@ export class LinkedQueue {
 
     if (!t) {
       if (this.head) {
-        console.error('warning: head should not be defined if there is no tail.');
-        // throw new Error('head should not be defined if there is no tail.');
+        throw new Error('head should not be defined if there is no tail.');
       }
       return null;
     }
 
     this.lookup.delete(t.key);
     this.tail = t.before || null;
+    if (!this.tail) {
+      this.head = null;
+    }
     return t;
   }
 
