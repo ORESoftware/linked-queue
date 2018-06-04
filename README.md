@@ -1,6 +1,6 @@
 
 
-# @oresoftware/linked-queue
+## @oresoftware / linked-queue
 
 ### Constant time queue
 
@@ -13,6 +13,12 @@ are O(N), because they have to update the indices of the entire array, etc.
 Because any FIFO queue implementation using a basic JavaScript array will need to call either `Array.prototype.shift` or `Array.prototype.unshift`,
 you might see a performance improvement right away when using big arrays, even if you don't need to insert or delete from the middle of your array.
 
+
+<br>
+
+#### Installation `npm i @oresoftware/linked-queue`
+
+<br>
 
 ### Examples
 
