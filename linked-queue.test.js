@@ -1,5 +1,5 @@
 
-const {LinkedQueue} = require('../dist/linked-list');
+const {LinkedQueue} = require('./linked-queue');
 
 const l2 = new LinkedQueue();
 
@@ -139,7 +139,10 @@ l2.enq('ooo');
 
 l2.remove('ooo');
 
-l2.clear();
+console.log(l2.length);
+
 
 debugger;
 console.log(l2.getOrderedList().map(v => v.key));
+
+console.log(l2.getReverseOrderedList().map(v => v.key));

@@ -3,12 +3,10 @@ export interface LinkedQueueValue {
   before: LinkedQueueValue,
   value: any,
   key: any,
-  index: number
 }
 
 export class LinkedQueue {
   
-  private indexLookup = new Map<number, any>();
   private lookup = new Map<any, any>();
   private head = null as any;
   private tail = null as any;
@@ -24,8 +22,7 @@ export class LinkedQueue {
     
     if (v) {
       
-      --this.length;
-      
+      this.length--;
       this.lookup.delete(k);
       
       let before = v.before;
@@ -49,7 +46,6 @@ export class LinkedQueue {
       
       delete v.before;
       delete v.after;
-      
     }
     
     return v || null;
@@ -67,7 +63,7 @@ export class LinkedQueue {
     return this.head;
   }
   
-  getOrderedList(): Array<any> {
+  getOrderedList(): Array<LinkedQueueValue> {
     const ret = [];
     
     let v = this.head;
@@ -80,7 +76,7 @@ export class LinkedQueue {
     return ret;
   }
   
-  getReverseOrderedList(): Array<any> {
+  getReverseOrderedList(): Array<LinkedQueueValue> {
     
     const ret = [];
     let v = this.tail;
@@ -102,6 +98,10 @@ export class LinkedQueue {
   
   clear() {
     return this.removeAll.apply(this, arguments);
+  }
+  
+  unshift(k: any, obj?: any): void {
+    return this.addToFront.apply(this, arguments);
   }
   
   addToFront(k: any, obj?: any): void {
@@ -175,11 +175,18 @@ export class LinkedQueue {
     
   }
   
+  enqueue(k: any, obj?: any): void {
+    return this.enq.apply(this, arguments);
+  }
+  
   deq(): LinkedQueueValue {
     
     const h = this.head;
     
     if (!h) {
+      if (this.tail) {
+        throw new Error('tail should not be defined if there is no head.');
+      }
       return null;
     }
     
@@ -190,11 +197,26 @@ export class LinkedQueue {
     
   }
   
+  shift(): LinkedQueueValue {
+    return this.deq.apply(this, arguments);
+  }
+  
+  dequeue(): LinkedQueueValue {
+    return this.deq.apply(this, arguments);
+  }
+  
+  pop(): LinkedQueueValue {
+    return this.removeLast.apply(this, arguments);
+  }
+  
   removeLast(): LinkedQueueValue {
     
     const t = this.tail;
     
     if (!t) {
+      if (this.head) {
+        throw new Error('head should not be defined if there is no tail.');
+      }
       return null;
     }
     
