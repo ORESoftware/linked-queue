@@ -20,7 +20,7 @@ you might see a performance improvement right away when using big arrays, even i
 
 <br>
 
-### Examples
+## Examples
 
 ```js
 const {LinkedQueue} from '@oresoftware/linked-queue';
