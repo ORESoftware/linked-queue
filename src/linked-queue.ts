@@ -8,7 +8,7 @@ export interface LinkedQueueValue {
   key: any,
 }
 
-export type ForEachIteratorFn = (val: any, index: number) => void;
+export type ForEachIteratorFn = (val: LinkedQueueValue, index: number) => void;
 
 export class LinkedQueue {
 
@@ -80,7 +80,6 @@ export class LinkedQueue {
 
     return ret;
   }
-
 
   forEach(fn: ForEachIteratorFn, ctx: any) {
     let v = this.head;
@@ -262,7 +261,8 @@ export class LinkedQueue {
 
     if (!h) {
       if (this.tail) {
-        throw new Error('tail should not be defined if there is no head.');
+        console.error('warning: tail should not be defined if there is no head.')
+        // throw new Error('tail should not be defined if there is no head.');
       }
       return null;
     }
@@ -273,7 +273,6 @@ export class LinkedQueue {
     return h;
 
   }
-
 
   shift(): LinkedQueueValue {
     return this.deq.apply(this, arguments);
@@ -293,7 +292,8 @@ export class LinkedQueue {
 
     if (!t) {
       if (this.head) {
-        throw new Error('head should not be defined if there is no tail.');
+        console.error('warning: head should not be defined if there is no tail.');
+        // throw new Error('head should not be defined if there is no tail.');
       }
       return null;
     }
