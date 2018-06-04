@@ -142,6 +142,10 @@ l2.remove('ooo');
 console.log(l2.length);
 
 
+console.log(l2.contains('ooo'));
+console.log(l2.contains('kk'));
+
+
 debugger;
 console.log(l2.getOrderedList().map(v => v.key));
 
