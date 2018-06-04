@@ -24,18 +24,18 @@ q.enqueue({task:'bar'});  // adds item to the end/tail of the queue
 q.push({task:'far'}); // adds item to the end/tail of the queue
 
 q.enq('foo', {task:'bbb'}); // adds item to the end/tail of the queue, with id/key = 'foo'
-q.get('foo'); => {key: 'foo', value: {task:'bbb'}}
+q.get('foo'); // => {key: 'foo', value: {task:'bbb'}}
 
 
 q.enq({whatever:'is clever'}, {task:'bbb'}); // adds task to the end/tail of the queue, with id/key = {whatever:'is clever'}
 
 
-q.deq() => removes and returns the head of the queue, or null.
-q.dequeue() => removes and returns the head of the queue, or null.
-q.shift() => removes and returns the head of the queue, or null.
+q.deq(); // => removes and returns the head of the queue, or null.
+q.dequeue(); // => removes and returns the head of the queue, or null.
+q.shift(); // => removes and returns the head of the queue, or null.
 
 
-q.peek() => returns the head of the queue, but does not remove it.
+q.peek(); // => returns the head of the queue, but does not remove it.
 
 ```
 
