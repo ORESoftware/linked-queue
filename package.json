@@ -2,7 +2,7 @@
   "name": "@oresoftware/linked-queue",
   "version": "0.0.1001",
   "description": "Linked queue for constatnt/linear time functionality.",
-  "main": "linked-queue.js",
+  "main": "dist/linked-queue.js",
   "scripts": {
     "test": "suman test"
   },
@@ -27,5 +27,8 @@
   "devDependencies": {
     "@types/core-js": "^2.5.0",
     "@types/node": "^10.3.0"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1"
   }
 }

@@ -1,4 +1,4 @@
-const {LinkedQueue} = require('./linked-queue');
+const {LinkedQueue} = require('../dist/lq');
 const l2 = new LinkedQueue();
 
 l2.enq('222');
