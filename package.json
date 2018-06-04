@@ -1,6 +1,6 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "0.0.1002",
+  "version": "0.0.1003",
   "description": "Linked queue for constatnt/linear time functionality.",
   "main": "dist/linked-queue.js",
   "scripts": {
@@ -26,7 +26,8 @@
   "homepage": "https://github.com/ORESoftware/linked-queue#readme",
   "devDependencies": {
     "@types/core-js": "^2.5.0",
-    "@types/node": "^10.3.0"
+    "@types/node": "^10.3.0",
+    "uuid": "^3.2.1"
   },
   "dependencies": {
     "chalk": "^2.4.1"
