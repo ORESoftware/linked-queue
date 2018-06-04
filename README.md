@@ -16,7 +16,7 @@ you might see a performance improvement right away when using big arrays, even i
 
 <br>
 
-#### Installation `npm i @oresoftware/linked-queue`
+## Installation `npm i @oresoftware/linked-queue`
 
 <br>
 
@@ -46,6 +46,7 @@ q.peek(); // => returns the head of the queue, but does not remove it.
 
 ```
 
+<br>
 
 ### More features
 
@@ -69,6 +70,8 @@ q.insertBehind(k1, k2, v);
 ```js
 q.insertAtIndex(index, k, v);
 ```
+
+<br>
 
 ## Further explanation
 
