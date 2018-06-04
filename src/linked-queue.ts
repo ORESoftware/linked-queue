@@ -126,6 +126,18 @@ export class LinkedQueue {
     return ret;
   }
 
+  insertInFrontOf() {
+    throw new Error('not yet implemented.');
+  }
+
+  insertBehind() {
+    throw new Error('not yet implemented.');
+  }
+
+  insertAtIndex() {
+    throw new Error('not yet implemented.');
+  }
+
   first(): LinkedQueueValue {
     return this.head || null;
   }
