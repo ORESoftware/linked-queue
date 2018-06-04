@@ -8,6 +8,8 @@ export interface LinkedQueueValue {
   key: any,
 }
 
+export type ForEachIteratorFn = (val: any, index: number) => void;
+
 export class LinkedQueue {
 
   private lookup = new Map<any, any>();
@@ -73,6 +75,52 @@ export class LinkedQueue {
 
     while (v) {
       ret.push(v);
+      v = v.after;
+    }
+
+    return ret;
+  }
+
+
+  forEach(fn: ForEachIteratorFn, ctx: any) {
+    let v = this.head;
+    let index = 0;
+    ctx = ctx || null;
+
+    while (v) {
+      fn.call(ctx, v, index++);
+      v = v.after;
+    }
+  }
+
+  map(fn: any, ctx: any) {
+
+    let v = this.head;
+    let index = 0;
+    ctx = ctx || null;
+
+    const ret = [];
+
+    while (v) {
+      ret.push(fn.call(ctx, v, index++));
+      v = v.after;
+    }
+
+    return ret;
+  }
+
+  filter(fn: any, ctx: any) {
+
+    let v = this.head;
+    let index = 0;
+    ctx = ctx || null;
+
+    const ret = [];
+
+    while (v) {
+      if (fn.call(ctx, v, index++)) {
+        ret.push(v);
+      }
       v = v.after;
     }
 
@@ -204,6 +252,10 @@ export class LinkedQueue {
     return this.enq.apply(this, arguments);
   }
 
+  push(k: any, obj?: any): void {
+    return this.enq.apply(this, arguments);
+  }
+
   deq(): LinkedQueueValue {
 
     const h = this.head;
@@ -221,6 +273,7 @@ export class LinkedQueue {
     return h;
 
   }
+
 
   shift(): LinkedQueueValue {
     return this.deq.apply(this, arguments);
