@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var util = require("util");
 var LinkedQueue = /** @class */ (function () {
     function LinkedQueue() {
         this.lookup = new Map();
@@ -52,6 +53,12 @@ var LinkedQueue = /** @class */ (function () {
         }
         return ret;
     };
+    LinkedQueue.prototype.first = function () {
+        return this.head || null;
+    };
+    LinkedQueue.prototype.last = function () {
+        return this.tail || null;
+    };
     LinkedQueue.prototype.getReverseOrderedList = function () {
         var ret = [];
         var v = this.tail;
@@ -75,12 +82,18 @@ var LinkedQueue = /** @class */ (function () {
     };
     LinkedQueue.prototype.addToFront = function (k, obj) {
         if (arguments.length < 1) {
-            throw new Error('Please pass an argument.');
+            throw new Error("Please pass an argument to '" + this.addToFront.name + "'()");
+        }
+        if (!k) {
+            throw new Error("Please pass a truthy value as the first argument to '" + this.addToFront.name + "'()");
         }
         if (arguments.length === 1) {
             obj = k;
         }
-        this.remove(k);
+        if (this.lookup.get(k)) {
+            throw new Error("The following object/value already exists in the queue. " + util.inspect(this.lookup.get(k).key).slice(0, 100) +
+                ("Either remove the already enqueued item, or pass a unique value as the first argument to '" + this.addToFront.name + "'()."));
+        }
         var v = {
             value: obj,
             key: k
@@ -99,12 +112,18 @@ var LinkedQueue = /** @class */ (function () {
     };
     LinkedQueue.prototype.enq = function (k, obj) {
         if (arguments.length < 1) {
-            throw new Error('Please pass an argument.');
+            throw new Error("Please pass an argument to '" + this.enq.name + "()'.");
+        }
+        if (!k) {
+            throw new Error("Please pass a truthy value as the first argument to '" + this.enq.name + "()'");
         }
         if (arguments.length === 1) {
             obj = k;
         }
-        this.remove(k);
+        if (this.lookup.get(k)) {
+            throw new Error("The following object/value already exists in the queue. " + util.inspect(this.lookup.get(k).key).slice(0, 100) + ". " +
+                ("Either remove the already enqueued item, or pass a unique value as the first argument to '" + (this.enq || 'foo') + "'()."));
+        }
         var v = {
             value: obj,
             key: k

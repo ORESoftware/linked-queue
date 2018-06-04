@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="acdd4e4a-ff13-4d7f-87e7-899749ef0f91" name="Default" comment="" />
+    <list default="true" id="acdd4e4a-ff13-4d7f-87e7-899749ef0f91" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linked-queue.js" beforeDir="false" afterPath="$PROJECT_DIR$/linked-queue.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linked-queue.ts" beforeDir="false" afterPath="$PROJECT_DIR$/linked-queue.ts" afterDir="false" />
+    </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -17,9 +21,16 @@
       <file leaf-file-name="linked-queue.ts" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/linked-queue.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="63">
-              <caret line="141" column="2" selection-start-line="141" selection-start-column="2" selection-end-line="141" selection-end-column="2" />
+            <state relative-caret-position="287">
+              <caret line="174" column="109" selection-start-line="174" selection-start-column="109" selection-end-line="174" selection-end-column="109" />
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="linked-queue.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/linked-queue.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1524" />
           </provider>
         </entry>
       </file>
@@ -56,9 +67,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/linked-queue.ts" />
         <option value="$PROJECT_DIR$/linked-queue.test.js" />
         <option value="$PROJECT_DIR$/simple.test.js" />
+        <option value="$PROJECT_DIR$/linked-queue.ts" />
       </list>
     </option>
   </component>
@@ -79,8 +90,13 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
+  <component name="NodeModulesDirectoryManager">
+    <handled-path value="$PROJECT_DIR$/node_modules" />
+  </component>
   <component name="NodePackageJsonFileManager">
-    <packageJsonPaths />
+    <packageJsonPaths>
+      <path value="$PROJECT_DIR$/package.json" />
+    </packageJsonPaths>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
     <option name="width" value="1680" />
@@ -100,6 +116,11 @@
             <path>
               <item name="linked-queue" type="b2602c69:ProjectViewProjectNode" />
               <item name="linked-queue" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="linked-queue" type="b2602c69:ProjectViewProjectNode" />
+              <item name="linked-queue" type="462c0819:PsiDirectoryNode" />
+              <item name="linked-queue.ts" type="620a8d5e:NestingTreeNode" />
             </path>
           </expand>
           <select />
@@ -156,15 +177,16 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1528075325047</updated>
-      <workItem from="1528075326655" duration="2011000" />
+      <workItem from="1528075326655" duration="3405000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2011000" />
+    <option name="totallyTimeSpent" value="3405000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info id="DB Browser" />
@@ -214,10 +236,15 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/linked-queue.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1524" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/linked-queue.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="141" column="2" selection-start-line="141" selection-start-column="2" selection-end-line="141" selection-end-column="2" />
+        <state relative-caret-position="287">
+          <caret line="174" column="109" selection-start-line="174" selection-start-column="109" selection-end-line="174" selection-end-column="109" />
         </state>
       </provider>
     </entry>

@@ -1,3 +1,5 @@
+import util = require('util');
+
 export interface LinkedQueueValue {
   after: LinkedQueueValue,
   before: LinkedQueueValue,
@@ -76,6 +78,14 @@ export class LinkedQueue {
     return ret;
   }
   
+  first(): LinkedQueueValue {
+    return this.head || null;
+  }
+  
+  last(): LinkedQueueValue {
+    return this.tail || null;
+  }
+  
   getReverseOrderedList(): Array<LinkedQueueValue> {
     
     const ret = [];
@@ -107,14 +117,21 @@ export class LinkedQueue {
   addToFront(k: any, obj?: any): void {
     
     if (arguments.length < 1) {
-      throw new Error('Please pass an argument.');
+      throw new Error(`Please pass an argument to '${this.addToFront.name}'()`);
+    }
+    
+    if (!k) {
+      throw new Error(`Please pass a truthy value as the first argument to '${this.addToFront.name}'()`);
     }
     
     if (arguments.length === 1) {
       obj = k;
     }
     
-    this.remove(k);
+    if (this.lookup.get(k)) {
+      throw new Error(`The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}` +
+        `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.addToFront.name}'().`);
+    }
     
     const v = <LinkedQueueValue>{
       value: obj,
@@ -142,18 +159,25 @@ export class LinkedQueue {
   enq(k: any, obj?: any): void {
     
     if (arguments.length < 1) {
-      throw new Error('Please pass an argument.');
+      throw new Error(`Please pass an argument to '${this.enq.name}()'.`);
+    }
+    
+    if (!k) {
+      throw new Error(`Please pass a truthy value as the first argument to '${this.enq.name}()'`);
     }
     
     if (arguments.length === 1) {
       obj = k;
     }
     
-    this.remove(k);
+    if (this.lookup.get(k)) {
+      throw new Error(`The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}. ` +
+        `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq || 'foo'}'().`);
+    }
     
     const v = <LinkedQueueValue>{
       value: obj,
-      key: k,
+      key: k
     };
     
     this.lookup.set(k, v);
