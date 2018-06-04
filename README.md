@@ -48,15 +48,15 @@ q.peek(); // => returns the head of the queue, but does not remove it.
 
 <br>
 
-### More features
+## More features
 
-#### Removing/deleting items from the queue in constant time
+### Removing/deleting items from the queue in constant time
 
 This is a FIFO queue, but if you wanted to dequeue a item that was not the head of the queue, instead of using `q.deq()`, you
 could just use `q.remove(id)`. Where id is the key/id of the item you wish to retrieve. And this would be
 in constant time. Removing items from the queue is useful if certain items in the queue have been obviated or are stale, etc.
 
-#### Inserting items into the queue in constant time
+### Inserting items into the queue in constant time
 
 Removing from the middle of the queue is an important feature - inserting items into the queue in linear time is also
 important. You can insert items into the queue in a certain location, in constant time, by using:
@@ -66,7 +66,7 @@ q.insertInFrontOf(k1, k2, v);
 q.insertBehind(k1, k2, v);
 ```
 
-#### Inserting in non-constant time
+### Inserting in non-constant time
 ```js
 q.insertAtIndex(index, k, v);
 ```
