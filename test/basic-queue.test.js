@@ -14,3 +14,4 @@ console.log(q.pop(), 'length:', q.length);
 console.log(q.pop(), 'length:', q.length);
 console.log(q.pop(), 'length:', q.length);
 console.log(q.pop(), 'length:', q.length);
+console.log(q.pop(), 'length:', q.length);
