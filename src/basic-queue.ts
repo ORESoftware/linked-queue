@@ -2,7 +2,7 @@
 
 export class BasicQueue {
 
-  lookup = <{[key:string]: any}>{};
+  lookup = <{[key:number]: any}>{};
   first = 0;
   last = 0;
   length = 0;
