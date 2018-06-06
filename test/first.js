@@ -104,7 +104,7 @@ let v = q.getLength();
 assert(Number.isInteger(v), 'v is not an integer.');
 const t = Date.now();
 
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < 1000000; i++) {
 
   const rand = Math.floor(Math.random() * ln);
   fns[rand]();

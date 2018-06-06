@@ -70,7 +70,7 @@ const ln = keys.length;
 let v = q.getLength();
 assert(Number.isInteger(v), 'v is not an integer.');
 
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < 1000000; i++) {
 
   const rand = Math.floor(Math.random() * ln);
   const res = fns[rand]();

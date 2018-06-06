@@ -109,14 +109,14 @@ export class LinkedQueue {
     return ret;
   }
 
-  static getKeyValue(v: LinkedQueueValue){
+  static getKeyValue(v: LinkedQueueValue) {
     return {
       key: v.key,
       value: v.value
     }
   }
 
-  forEach(fn: IteratorFunction, ctx?: any) {
+  forEach(fn: IteratorFunction, ctx?: any): this {
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
@@ -125,6 +125,7 @@ export class LinkedQueue {
       fn.call(ctx, LinkedQueue.getKeyValue(v), index++);
       v = v.after;
     }
+    return this;
   }
 
   map(fn: IteratorFunction, ctx?: any) {
@@ -237,6 +238,9 @@ export class LinkedQueue {
     const h = this.head;
 
     if (h) {
+      if (h.before) {
+        throw new Error('The queue head should not have an "before" pointer.');
+      }
       h.before = v;
     }
 
@@ -281,7 +285,7 @@ export class LinkedQueue {
 
     if (t) {
       if (t.after) {
-        throw new Error('this should never be defined.');
+        throw new Error('The queue tail should not have an "after" pointer.');
       }
       t.after = v;
     }
