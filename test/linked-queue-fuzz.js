@@ -69,6 +69,7 @@ for (let i = 0; i < 1000000; i++) {
 
   const newLn = q.getLength();
   assert(Number.isInteger(newLn), 'newLn is not an integer.');
+  assert(newLn >=0, 'newLn is less than zero.');
 
   // console.log('prev length', v, 'new length:', newLn, 'rand is:', rand);
 

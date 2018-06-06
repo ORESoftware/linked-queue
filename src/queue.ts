@@ -1,4 +1,8 @@
+'use strict';
+
 export class Queue {
+
+  // this is a queue implemented with a Map instance, but without a doubly-linked list
 
   lookup = new Map<number, any>();
   first = 0;

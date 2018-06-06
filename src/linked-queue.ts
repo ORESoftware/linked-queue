@@ -81,7 +81,7 @@ export class LinkedQueue {
     return ret;
   }
 
-  forEach(fn: ForEachIteratorFn, ctx: any) {
+  forEach(fn: ForEachIteratorFn, ctx?: any) {
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
@@ -92,7 +92,7 @@ export class LinkedQueue {
     }
   }
 
-  map(fn: any, ctx: any) {
+  map(fn: any, ctx?: any) {
 
     let v = this.head;
     let index = 0;
@@ -108,7 +108,7 @@ export class LinkedQueue {
     return ret;
   }
 
-  filter(fn: any, ctx: any) {
+  filter(fn: any, ctx?: any) {
 
     let v = this.head;
     let index = 0;
@@ -244,7 +244,12 @@ export class LinkedQueue {
 
     const t = this.tail;
 
+
+
     if (t) {
+      if(t.after){
+        throw new Error('this should never be defined.');
+      }
       t.after = v;
     }
 
@@ -281,7 +286,10 @@ export class LinkedQueue {
     this.length--;
     this.lookup.delete(h.key);
     this.head = h.after || null;
-    if (!this.head) {
+    if (this.head) {
+      this.head.before = null;
+    }
+    else {
       this.tail = null;
     }
     return h;

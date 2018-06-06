@@ -1,33 +1,34 @@
-const {LinkedQueue} = require('../dist/lq');
-const l2 = new LinkedQueue();
+const {LinkedQueue} = require('../dist/linked-queue');
+const q = new LinkedQueue();
 
-l2.enq('222');
-l2.enq('222');
+q.enq('z');
+q.enq('222');
+q.push('bar');
+q.deq();
 
-console.log(l2.getLength());
 
-let v = l2.tail;
+let v = q.tail;
 let before = null;
 
 while (v) {
-  console.log(v.key);
   before = v;
   v = v.before;
 }
 
-if (before !== l2.peek()) {
-  throw new Error('fml');
+let peek = q.peek();
+if (before !== peek) {
+  console.error(before.key, peek.key, q.getOrderedList().map(v => v.key));
+  throw 'fml-1';
 }
 
-v = l2.head;
+v = q.head;
 before = null;
 
 while (v) {
-  console.log(v.key);
   before = v;
   v = v.after;
 }
 
-if (before !== l2.tail) {
-  throw new Error('fml');
+if (before !== q.tail) {
+  throw new Error('fml 2');
 }

@@ -2,6 +2,9 @@
 
 export class BasicQueue {
 
+  // this is a queue implemented with a POJSO as a map, but without a doubly-linked list
+  // this is slightly more performant than doubly-linked list, but LESS performant than using a Map instance
+
   lookup = <{[key:number]: any}>{};
   first = 0;
   last = 0;
