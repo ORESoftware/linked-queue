@@ -8,7 +8,7 @@ export interface LinkedQueueValue {
   key: any,
 }
 
-export type ForEachIteratorFn = (val: LinkedQueueValue, index: number) => void;
+export type IteratorFunction = (val: LinkedQueueValue, index: number) => void;
 
 export class LinkedQueue {
 
@@ -19,6 +19,34 @@ export class LinkedQueue {
 
   getLength(): number {
     return this.length;
+  }
+
+  getRandomKey() {
+    const size = this.lookup.size;
+
+    if (size < 1) {
+      throw new Error('Cannot get random key from empty queue.')
+    }
+
+    const r = Math.floor(Math.random() * size);
+    let i = 0, k = null;
+    for (k of this.lookup.keys()) {
+      if (i === r) {
+        break;
+      }
+      i++;
+    }
+
+    return k;
+  }
+
+  getRandomItem() {
+    try {
+      return this.lookup.get(this.getRandomKey());
+    }
+    catch (err) {
+      return null;
+    }
   }
 
   remove(k: any): LinkedQueueValue {
@@ -81,18 +109,25 @@ export class LinkedQueue {
     return ret;
   }
 
-  forEach(fn: ForEachIteratorFn, ctx?: any) {
+  static getKeyValue(v: LinkedQueueValue){
+    return {
+      key: v.key,
+      value: v.value
+    }
+  }
+
+  forEach(fn: IteratorFunction, ctx?: any) {
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
 
     while (v) {
-      fn.call(ctx, v, index++);
+      fn.call(ctx, LinkedQueue.getKeyValue(v), index++);
       v = v.after;
     }
   }
 
-  map(fn: any, ctx?: any) {
+  map(fn: IteratorFunction, ctx?: any) {
 
     let v = this.head;
     let index = 0;
@@ -101,14 +136,14 @@ export class LinkedQueue {
     const ret = [];
 
     while (v) {
-      ret.push(fn.call(ctx, v, index++));
+      ret.push(fn.call(ctx, LinkedQueue.getKeyValue(v), index++));
       v = v.after;
     }
 
     return ret;
   }
 
-  filter(fn: any, ctx?: any) {
+  filter(fn: IteratorFunction, ctx?: any) {
 
     let v = this.head;
     let index = 0;
@@ -117,7 +152,7 @@ export class LinkedQueue {
     const ret = [];
 
     while (v) {
-      if (fn.call(ctx, v, index++)) {
+      if (fn.call(ctx, LinkedQueue.getKeyValue(v), index++)) {
         ret.push(v);
       }
       v = v.after;
@@ -244,10 +279,8 @@ export class LinkedQueue {
 
     const t = this.tail;
 
-
-
     if (t) {
-      if(t.after){
+      if (t.after) {
         throw new Error('this should never be defined.');
       }
       t.after = v;
@@ -269,6 +302,10 @@ export class LinkedQueue {
   }
 
   push(k: any, obj?: any): void {
+    return this.enq.apply(this, arguments);
+  }
+
+  add(k: any, obj?: any): void {
     return this.enq.apply(this, arguments);
   }
 
@@ -320,7 +357,10 @@ export class LinkedQueue {
 
     this.lookup.delete(t.key);
     this.tail = t.before || null;
-    if (!this.tail) {
+    if (this.tail) {
+      this.tail.after = null;
+    }
+    else {
       this.head = null;
     }
     return t;
