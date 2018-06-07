@@ -17,7 +17,7 @@ const testHead = function () {
 
   let peek = q.peek();
   if (before !== peek) {
-    console.error(before.key, peek.key, q.getOrderedList().map(v => v.key));
+    console.error(before.key, peek && peek.key, q.getOrderedList().map(v => v.key));
     throw 'fml-1';
   }
 
@@ -34,7 +34,7 @@ const testTail = function () {
   }
 
   if (after !== q.tail) {
-    console.error(after.key, peek.key, q.getOrderedList().map(v => v.key));
+    console.error(after.key, q.tail && q.tail.key, q.getOrderedList().map(v => v.key));
     throw new Error('fml 2');
   }
 
