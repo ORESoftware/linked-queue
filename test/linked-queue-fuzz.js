@@ -79,6 +79,8 @@ for (let i = 0; i < 1000000; i++) {
   assert(Number.isInteger(newLn), 'newLn is not an integer.');
   assert(newLn >= 0, 'newLn is less than zero.');
 
+  assert(newLn === q.lookup.size, 'not the same as size.');
+
   // console.log('prev length', v, 'new length:', newLn, 'rand is:', rand);
 
   if (rand < 2 && newLn !== 0) {

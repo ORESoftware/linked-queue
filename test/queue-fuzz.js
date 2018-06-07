@@ -1,7 +1,6 @@
-
+'use strict';
 
 const {Queue} = require('../dist/queue');
-
 const assert = require('assert');
 const q = new Queue();
 const uuid = require('uuid/v4');

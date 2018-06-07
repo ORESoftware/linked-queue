@@ -7,19 +7,31 @@ export class Queue {
   lookup = new Map<number, any>();
   first = 0;
   last = 0;
-  length = 0;
   elementExists = false;
 
   peek() {
     return this.lookup.get(this.first);
   }
 
-  getByIndex(v: number) {
+  getByRawIndex(v: number) {
     return this.lookup.get(v);
   }
 
+  getByIndex(v: number) {
+
+    if (!Number.isInteger(v)) {
+      throw new Error('Argument must be an integer.');
+    }
+
+    return this.lookup.get(v + this.first);
+  }
+
   getLength() {
-    return this.length;
+    return this.lookup.size;
+  }
+
+  getSize() {
+    return this.lookup.size;
   }
 
   pop() {
@@ -27,11 +39,9 @@ export class Queue {
     const last = this.last;
 
     if (this.elementExists && this.first === this.last) {
-      this.length--;
       this.elementExists = false;
     }
     else if (this.last > this.first) {
-      this.length--;
       this.last--;
     }
 
@@ -45,11 +55,9 @@ export class Queue {
     const first = this.first;
 
     if (this.elementExists && this.first === this.last) {
-      this.length--;
       this.elementExists = false;
     }
     else if (this.first < this.last) {
-      this.length--;
       this.first++;
     }
 
@@ -59,8 +67,6 @@ export class Queue {
   }
 
   push(v: any) {
-
-    this.length++;
 
     if (this.elementExists && this.first === this.last) {
       this.last++;
@@ -94,8 +100,6 @@ export class Queue {
 
   unshift(v: any) {
 
-    this.length++;
-
     if (this.elementExists && this.first === this.last) {
       this.first--;
     }
@@ -109,8 +113,8 @@ export class Queue {
     return this.lookup.set(this.first, v);
   }
 
-  addToFront(v: any){
-    return this.unshift.apply(this,arguments);
+  addToFront(v: any) {
+    return this.unshift.apply(this, arguments);
   }
 
   removeAll() {
@@ -118,7 +122,6 @@ export class Queue {
   }
 
   clear(): void {
-    this.length = 0;
     this.elementExists = false;
     this.first = 0;
     this.last = 0;

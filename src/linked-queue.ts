@@ -15,10 +15,13 @@ export class LinkedQueue {
   private lookup = new Map<any, any>();
   private head = null as any;
   private tail = null as any;
-  private length = 0;
 
   getLength(): number {
-    return this.length;
+    return this.lookup.size;
+  }
+
+  getSize(): number {
+    return this.lookup.size;
   }
 
   getRandomKey() {
@@ -55,7 +58,6 @@ export class LinkedQueue {
 
     if (v) {
 
-      this.length--;
       this.lookup.delete(k);
 
       let before = v.before;
@@ -199,7 +201,6 @@ export class LinkedQueue {
     this.head = null;
     this.tail = null;
     this.lookup.clear();
-    this.length = 0;
   }
 
   clear() {
@@ -251,7 +252,6 @@ export class LinkedQueue {
       this.tail = v;
     }
 
-    this.length++;
 
   }
 
@@ -297,7 +297,6 @@ export class LinkedQueue {
       this.head = v;
     }
 
-    this.length++;
 
   }
 
@@ -324,7 +323,6 @@ export class LinkedQueue {
       return null;
     }
 
-    this.length--;
     this.lookup.delete(h.key);
     this.head = h.after || null;
     if (this.head) {
@@ -360,13 +358,16 @@ export class LinkedQueue {
     }
 
     this.lookup.delete(t.key);
+
     this.tail = t.before || null;
+
     if (this.tail) {
       this.tail.after = null;
     }
     else {
       this.head = null;
     }
+
     return t;
   }
 
