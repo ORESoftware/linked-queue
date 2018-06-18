@@ -11,6 +11,7 @@ export class BasicQueue {
   length = 0;
   elementExists = false;
 
+
   peek() {
     return this.lookup[this.first];
   }

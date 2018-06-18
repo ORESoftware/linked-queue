@@ -9,6 +9,16 @@ export class Queue {
   last = 0;
   elementExists = false;
 
+  constructor(){
+
+    Object.defineProperty(this, 'length', {
+      get:  () => {
+        return this.lookup.size;
+      }
+    });
+
+  }
+
   peek() {
     return this.lookup.get(this.first);
   }

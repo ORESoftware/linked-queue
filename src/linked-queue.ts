@@ -15,6 +15,17 @@ export class LinkedQueue {
   private lookup = new Map<any, any>();
   private head = null as any;
   private tail = null as any;
+  length = 0;
+
+  constructor(){
+
+    Object.defineProperty(this, 'length', {
+      get:  () => {
+        return this.lookup.size;
+      }
+    });
+
+  }
 
   getLength(): number {
     return this.lookup.size;
