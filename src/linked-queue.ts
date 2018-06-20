@@ -3,6 +3,10 @@
 import util = require('util');
 import chalk from "chalk";
 
+export const r2gSmokeTest = function () {
+  return true;
+};
+
 export interface LinkedQueueValue {
   after: LinkedQueueValue,
   before: LinkedQueueValue,
