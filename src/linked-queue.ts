@@ -1,3 +1,5 @@
+'use strict';
+
 import util = require('util');
 import chalk from "chalk";
 
@@ -15,7 +17,6 @@ export class LinkedQueue {
   private lookup = new Map<any, any>();
   private head = null as any;
   private tail = null as any;
-  length = 0;
 
   constructor(){
 
@@ -384,6 +385,3 @@ export class LinkedQueue {
 
 }
 
-export const r2gSmokeTest = function () {
-  return true;
-};

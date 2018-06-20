@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+'use strict';
+
 const {LinkedQueue} = require('@oresoftware/linked-queue');
 
 const q = new LinkedQueue();

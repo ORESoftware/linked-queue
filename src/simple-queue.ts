@@ -1,6 +1,6 @@
 'use strict';
 
-export class Queue {
+export class SimpleQueue {
 
   // this is a queue implemented with a Map instance, but without a doubly-linked list
 
