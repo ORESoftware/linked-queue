@@ -1,10 +1,10 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "0.0.1007",
-  "description": "Linked queue for constatnt/linear time functionality.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "typings": "dist/index.d.ts",
+  "version": "0.0.1008",
+  "description": "Synchronous queue implementation with constant/linear time operations.",
+  "main": "dist/linked-queue.js",
+  "types": "dist/linked-queue.d.ts",
+  "typings": "dist/linked-queue.d.ts",
   "scripts": {
     "test": "suman test"
   },
@@ -26,12 +26,12 @@
     "url": "https://github.com/ORESoftware/linked-queue/issues"
   },
   "homepage": "https://github.com/ORESoftware/linked-queue#readme",
+  "dependencies": {
+    "chalk": "^2.4.1"
+  },
   "devDependencies": {
     "@types/core-js": "^2.5.0",
     "@types/node": "^10.3.0",
     "uuid": "^3.2.1"
-  },
-  "dependencies": {
-    "chalk": "^2.4.1"
   }
 }
