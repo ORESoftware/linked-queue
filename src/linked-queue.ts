@@ -21,6 +21,7 @@ export class LinkedQueue {
   private lookup = new Map<any, any>();
   private head = null as any;
   private tail = null as any;
+  public length: number;
 
   constructor(){
 
