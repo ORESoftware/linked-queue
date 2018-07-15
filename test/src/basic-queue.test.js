@@ -1,6 +1,6 @@
-const {Queue} = require('../dist/queue');
+const {LinkedQueue} = require('@oresoftware/linked-queue');
 
-const q = new Queue();
+const q = new LinkedQueue();
 
 q.unshift('bar');
 q.unshift('zoom');

@@ -6,7 +6,7 @@
   "types": "dist/linked-queue.d.ts",
   "typings": "dist/linked-queue.d.ts",
   "scripts": {
-    "test": "suman test"
+    "test": "suman test/src --force-match"
   },
   "repository": {
     "type": "git",

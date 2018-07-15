@@ -1,8 +1,8 @@
 'use strict';
 
-const {BasicQueue} = require('../dist/basic-queue');
+const {LinkedQueue} = require('@oresoftware/linked-queue');
 const assert = require('assert');
-const q = new BasicQueue();
+const q = new LinkedQueue();
 const uuid = require('uuid/v4');
 
 const t = Date.now();

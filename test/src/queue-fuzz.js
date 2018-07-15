@@ -1,44 +1,11 @@
 'use strict';
 
+const {LinkedQueue} = require('@oresoftware/linked-queue');
 const assert = require('assert');
-const uuid = require('uuid/v4');
-const {LinkedQueue} = require('../dist/linked-queue');
 const q = new LinkedQueue();
+const uuid = require('uuid/v4');
 
-const testHead = function () {
-
-  let v = q.tail;
-  let before = null;
-
-  while (v) {
-    before = v;
-    v = v.before;
-  }
-
-  let peek = q.peek();
-  if (before !== peek) {
-    console.error(before.key, peek && peek.key, q.getOrderedList().map(v => v.key));
-    throw 'fml-1';
-  }
-
-};
-
-const testTail = function () {
-
-  let v = q.head;
-  let after = null;
-
-  while (v) {
-    after = v;
-    v = v.after;
-  }
-
-  if (after !== q.tail) {
-    console.error(after.key, q.tail && q.tail.key, q.getOrderedList().map(v => v.key));
-    throw new Error('fml 2');
-  }
-
-};
+const t = Date.now();
 
 const fns = {
   '0'() {
@@ -80,17 +47,10 @@ const fns = {
   '12'() {
     q.shift();
   },
-  '13'() {
-    try {
-      return q.remove(q.getRandomKey());
-    }
-    catch (err) {
-      return null;
-    }
-  }
 };
 
 const keys = Object.keys(fns);
+
 const isUnique = keys.map(v => parseInt(v)).reduce((a, b) => {
   if (b !== (a + 1)) {
     console.log(a, b);
@@ -102,7 +62,6 @@ const isUnique = keys.map(v => parseInt(v)).reduce((a, b) => {
 const ln = keys.length;
 let v = q.getLength();
 assert(Number.isInteger(v), 'v is not an integer.');
-const t = Date.now();
 
 for (let i = 0; i < 1000000; i++) {
 
@@ -111,12 +70,27 @@ for (let i = 0; i < 1000000; i++) {
 
   const newLn = q.getLength();
   assert(Number.isInteger(newLn), 'newLn is not an integer.');
-  assert(newLn >= 0, 'newLn is less than zero.');
 
-  testHead();
-  testTail();
+  // console.log('prev length', v, 'new length:', newLn, 'rand is:', rand);
+
+  if (rand < 2 && newLn !== 0) {
+    throw new Error('we called clear or removeAll, length should be 0.');
+  }
+
+  if (rand > 9 && v === 0 && newLn !== 0) {
+    throw new Error('New length should be zero.')
+  }
+
+  if (rand > 9 && v > 0 && ((newLn + 1) !== v)) {
+    throw new Error('New length should be one fewer.')
+  }
+
+  if (rand > 1 && rand < 10 && v > 0  && ((newLn - 1) !== v)) {
+    throw new Error('New length should be one greater.')
+  }
+
+  v = q.getLength();
 
 }
 
 console.log('total time:', Date.now() - t);
-

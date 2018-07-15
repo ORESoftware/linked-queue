@@ -1,12 +1,12 @@
 
-const {LinkedQueue} = require('../dist/linked-queue');
+const {LinkedQueue} = require('@oresoftware/linked-queue');
 
 const l2 = new LinkedQueue();
 
 l2.enq(String({}));
-l2.enq(String({}));
+// l2.enq(String({}));
 
-l2.enq({});
+// l2.enq({});
 
 l2.enq({});
 
