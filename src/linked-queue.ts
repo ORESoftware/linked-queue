@@ -296,7 +296,9 @@ export class LinkedQueue {
     let v = true as any;
     while (v && items.length < n) {
       v = this.dequeue();
-      items.push(v);
+      if(v){
+        items.push(v);
+      }
     }
     return items;
   }
