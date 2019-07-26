@@ -67,8 +67,7 @@ export class LinkedQueue {
   getRandomItem() {
     try {
       return this.lookup.get(this.getRandomKey());
-    }
-    catch (err) {
+    } catch (err) {
       return null;
     }
   }
@@ -278,12 +277,8 @@ export class LinkedQueue {
   
   
   enq(...args: Array<any>) {
-    return flattenDeep(Array.from(arguments)).map(v => {
-      return v['key'] ? this.enqueue(v.key, v.value) : this.enqueue(v.value);
-    });
+    return args.map(v => v['key'] ? this.enqueue(v.key, v.value) : this.enqueue(v.value));
   }
-  
-  
   
   deq(n: number) {
     if (!Number.isInteger(n)) {
@@ -295,8 +290,7 @@ export class LinkedQueue {
     const items = [];
     let v = true as any;
     while (v && items.length < n) {
-      v = this.dequeue();
-      if(v){
+      if (v = this.dequeue()) {
         items.push(v);
       }
     }
@@ -315,8 +309,7 @@ export class LinkedQueue {
     this.head = h.after || null;
     if (this.head) {
       this.head.before = null;
-    }
-    else {
+    } else {
       this.tail = null;
     }
     return h;
@@ -364,26 +357,8 @@ export class LinkedQueue {
       this.head = v;
     }
     
-    
   }
   
-  
-  push(k: any, obj?: any): void {
-    return this.enqueue.apply(this, arguments);
-  }
-  
-  add(k: any, obj?: any): void {
-    return this.enqueue.apply(this, arguments);
-  }
-  
-  
-  shift(): LinkedQueueValue {
-    return this.dequeue.apply(this, arguments);
-  }
-  
-  pop(): LinkedQueueValue {
-    return this.removeLast.apply(this, arguments);
-  }
   
   removeLast(): LinkedQueueValue {
     
@@ -402,13 +377,33 @@ export class LinkedQueue {
     
     if (this.tail) {
       this.tail.after = null;
-    }
-    else {
+    } else {
       this.head = null;
     }
     
     return t;
   }
+  
+  
+  // aliases
+  
+  push(k: any, obj?: any): void {
+    return this.enqueue.apply(this, arguments);
+  }
+  
+  add(k: any, obj?: any): void {
+    return this.enqueue.apply(this, arguments);
+  }
+  
+  shift(): LinkedQueueValue {
+    return this.dequeue.apply(this, arguments);
+  }
+  
+  pop(): LinkedQueueValue {
+    return this.removeLast.apply(this, arguments);
+  }
+  
+
   
 }
 
