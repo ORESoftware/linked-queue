@@ -14,7 +14,7 @@ export interface LinkedQueueValue {
   key: any,
 }
 
-export type IteratorFunction = (val: LinkedQueueValue, index: number) => void;
+export type IteratorFunction<T> = (val: LinkedQueueValue, index: number) => T;
 
 const flattenDeep = (arr: Array<any>): Array<any> => {
   return Array.isArray(arr) ? arr.reduce((a, b) => [...flattenDeep(a), ...flattenDeep(b)], []) : [arr];
@@ -67,7 +67,8 @@ export class LinkedQueue {
   getRandomItem() {
     try {
       return this.lookup.get(this.getRandomKey());
-    } catch (err) {
+    }
+    catch (err) {
       return null;
     }
   }
@@ -119,7 +120,7 @@ export class LinkedQueue {
   }
   
   getOrderedList(): Array<LinkedQueueValue> {
-    const ret = [];
+    const ret: LinkedQueueValue[] = [];
     
     let v = this.head;
     
@@ -138,7 +139,7 @@ export class LinkedQueue {
     }
   }
   
-  forEach(fn: IteratorFunction, ctx?: any): this {
+  forEach(fn: IteratorFunction<void>, ctx?: any): this {
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
@@ -150,13 +151,13 @@ export class LinkedQueue {
     return this;
   }
   
-  map(fn: IteratorFunction, ctx?: any) {
+  map(fn: IteratorFunction<any>, ctx?: any): Array<any> {
     
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
     
-    const ret = [];
+    const ret: Array<any> = [];
     
     while (v) {
       ret.push(fn.call(ctx, LinkedQueue.getKeyValue(v), index++));
@@ -166,13 +167,13 @@ export class LinkedQueue {
     return ret;
   }
   
-  filter(fn: IteratorFunction, ctx?: any) {
+  filter(fn: IteratorFunction<boolean>, ctx?: any): LinkedQueueValue[] {
     
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
     
-    const ret = [];
+    const ret: LinkedQueueValue[] = [];
     
     while (v) {
       if (fn.call(ctx, LinkedQueue.getKeyValue(v), index++)) {
@@ -206,7 +207,7 @@ export class LinkedQueue {
   
   getReverseOrderedList(): Array<LinkedQueueValue> {
     
-    const ret = [];
+    const ret: LinkedQueueValue[] = [];
     let v = this.tail;
     
     while (v) {
@@ -221,14 +222,6 @@ export class LinkedQueue {
     this.head = null;
     this.tail = null;
     this.lookup.clear();
-  }
-  
-  clear() {
-    return this.removeAll.apply(this, arguments);
-  }
-  
-  unshift(k: any, obj?: any): void {
-    return this.addToFront.apply(this, arguments);
   }
   
   addToFront(k: any, obj?: any): void {
@@ -272,9 +265,7 @@ export class LinkedQueue {
       this.tail = v;
     }
     
-    
   }
-  
   
   enq(...args: Array<any>) {
     return args.map(v => v['key'] ? this.enqueue(v.key, v.value) : this.enqueue(v.value));
@@ -287,7 +278,7 @@ export class LinkedQueue {
     if (n < 1) {
       throw new Error('Must provide a positive integer as an argument to deq().');
     }
-    const items = [];
+    const items: LinkedQueueValue[] = [];
     let v = true as any;
     while (v && items.length < n) {
       if (v = this.dequeue()) {
@@ -309,7 +300,8 @@ export class LinkedQueue {
     this.head = h.after || null;
     if (this.head) {
       this.head.before = null;
-    } else {
+    }
+    else {
       this.tail = null;
     }
     return h;
@@ -359,7 +351,6 @@ export class LinkedQueue {
     
   }
   
-  
   removeLast(): LinkedQueueValue {
     
     const t = this.tail;
@@ -377,15 +368,23 @@ export class LinkedQueue {
     
     if (this.tail) {
       this.tail.after = null;
-    } else {
+    }
+    else {
       this.head = null;
     }
     
     return t;
   }
   
-  
   // aliases
+  
+  clear() {
+    return this.removeAll.apply(this, arguments);
+  }
+  
+  unshift(k: any, obj?: any): void {
+    return this.addToFront.apply(this, arguments);
+  }
   
   push(k: any, obj?: any): void {
     return this.enqueue.apply(this, arguments);
@@ -402,8 +401,6 @@ export class LinkedQueue {
   pop(): LinkedQueueValue {
     return this.removeLast.apply(this, arguments);
   }
-  
-
   
 }
 
