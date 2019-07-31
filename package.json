@@ -1,6 +1,6 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "0.1.104",
+  "version": "0.1.105",
   "description": "Synchronous queue implementation with constant/linear time operations.",
   "main": "dist/linked-queue.js",
   "types": "dist/linked-queue.d.ts",
@@ -27,11 +27,10 @@
   },
   "homepage": "https://github.com/ORESoftware/linked-queue#readme",
   "dependencies": {
-    "chalk": "^2.4.1"
+    "chalk": "^2.4.2"
   },
   "devDependencies": {
-    "@types/core-js": "^2.5.0",
-    "@types/node": "^10.3.0",
+    "@types/node": "^12.6.1",
     "uuid": "^3.2.1"
   },
   "r2g": {
