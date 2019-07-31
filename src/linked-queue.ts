@@ -313,9 +313,9 @@ export class LinkedQueue {
       throw new Error(`Please pass an argument to '${this.enq.name}()'.`);
     }
     
-    if (!k) {
-      throw new Error(`Please pass a truthy value as the first argument to '${this.enq.name}()'`);
-    }
+    // if (!k) {
+    //   throw new Error(`Please pass a truthy value as the first argument to '${this.enq.name}()'`);
+    // }
     
     if (arguments.length === 1) {
       obj = k;
