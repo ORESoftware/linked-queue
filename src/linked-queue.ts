@@ -293,16 +293,27 @@ export class LinkedQueue<T, K = any> {
   }
 
   dequeueEach(fn: IteratorFunction<T, void>, ctx?: any): this {
-    let v = this.head;
+
     let index = 0;
     ctx = ctx || null;
 
-    while (v) {
-      fn.call(ctx, LinkedQueue.getKeyValue(v), index++);
-      v = v.after;
+    while (this.head) {
+      fn.call(ctx, LinkedQueue.getKeyValue(this.head), index++);
+      this.lookup.delete(this.head.key);
+      this.head = this.head.after || null;
+      if (this.head) {
+        this.head.before = null;
+      }
+      else {
+        this.tail = null;
+      }
     }
 
     return this;
+  }
+
+  deueueAll(){
+    throw 'not implemented yet  - should dequeu all items buffer all items onto an array and return the array.'
   }
 
   dequeue(): LinkedQueueValue<T> {
