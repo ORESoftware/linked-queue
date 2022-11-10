@@ -7,31 +7,33 @@ export const r2gSmokeTest = function () {
   return true;
 };
 
-export interface LinkedQueueValue<T> {
-  after?: LinkedQueueValue<T>,
-  before?: LinkedQueueValue<T>,
-  value: T,
+export interface LinkedQueueValue<V, K = V> {
+  after?: LinkedQueueValue<V>,
+  before?: LinkedQueueValue<V>,
+  value: V,
   key: any,
 }
 
-export type IteratorFunction<T, V> = (val: [T,V], index: number) => V;
+export type IteratorFunction<T, V> = (val: [T, V], index: number) => V;
 
 const flattenDeep = (arr: Array<any>): Array<any> => {
   return Array.isArray(arr) ? arr.reduce((a, b) => [...flattenDeep(a), ...flattenDeep(b)], []) : [arr];
 };
 
-export class LinkedQueue<V, K = any> {
+const IsVoidVal = Symbol('null result');
+export const IsVoid = IsVoidVal;
+
+export class LinkedQueue<V, K = V> {
 
   private lookup = new Map<K, LinkedQueueValue<V>>();
-  private head = null as any;
-  private tail = null as any;
+  private head: LinkedQueueValue<V> | null = null;
+  private tail: LinkedQueueValue<V> = null;
 
-
-  get size(){
+  get size() {
     return this.lookup.size;
   }
 
-  get length(){
+  get length() {
     return this.lookup.size;
   }
 
@@ -43,11 +45,11 @@ export class LinkedQueue<V, K = any> {
     return this.lookup.size;
   }
 
-  iterator(){
+  iterator() {
     return this;
   }
 
-  getIterator(){
+  getIterator() {
     return this;
   }
 
@@ -59,11 +61,11 @@ export class LinkedQueue<V, K = any> {
 
       next(): IteratorResult<[K, V], any> {
 
-        if(!v){
-          return {value: null, done:true}
+        if (!v) {
+          return {value: null, done: true}
         }
 
-        const {key,value} = v;
+        const {key, value} = v;
         v = v.after;
 
         return {
@@ -72,6 +74,32 @@ export class LinkedQueue<V, K = any> {
         }
       }
     }
+  }
+
+  dequeueIterator() {
+
+    const self = this;
+
+    return {
+      [Symbol.iterator](): Iterator<[K, V]> {
+
+        return {
+
+          next(): IteratorResult<[K, V], any> {
+
+            const d = self.dequeue() as [K, V];
+
+            return {
+              value: d,
+              // empty array [] means we are done,
+              // since we return [] instead of null as a pattern here
+              done: d.length < 1
+            }
+          }
+        }
+      }
+    }
+
   }
 
   getRandomKey() {
@@ -101,13 +129,13 @@ export class LinkedQueue<V, K = any> {
     }
   }
 
-  remove(k: K): [K, V] | null {
+  remove(k: K): [K, V] | [typeof IsVoidVal] {
 
     const v = this.lookup.get(k);
     this.lookup.delete(k);
 
     if (!v) {
-      return null;
+      return [IsVoidVal];
     }
 
     let before = v.before;
@@ -136,14 +164,15 @@ export class LinkedQueue<V, K = any> {
     return Boolean(this.lookup.get(k));
   }
 
-  get(k: K): LinkedQueueValue<V> {
-    return this.lookup.get(k);
+  get(k: K): ([K, V] | [typeof IsVoidVal]) {
+    const v = this.lookup.get(k);
+    return v ? [v.key, v.value] : [IsVoidVal];
   }
 
-  peek(): [K, V] | null {
-    return !this.head ? null : [
+  peek(): [K, V] | [typeof IsVoidVal] {
+    return !this.head ? [IsVoidVal] : [
       this.head.key,
-      this.head.val
+      this.head.value
     ];
   }
 
@@ -206,15 +235,15 @@ export class LinkedQueue<V, K = any> {
     throw new Error('not yet implemented.');
   }
 
-  first(): [K, V] | null {
-    return !this.head ? null : [
+  first(): ([K, V] | [typeof IsVoidVal]) {
+    return !this.head ? [IsVoidVal] : [
       this.head.key,
       this.head.value
     ]
   }
 
-  last(): [K, V] | null {
-    return !this.tail ? null : [
+  last(): ([K, V] | [typeof IsVoidVal]) {
+    return !this.tail ? [IsVoidVal] : [
       this.tail.key,
       this.tail.value
     ]
@@ -332,6 +361,7 @@ export class LinkedQueue<V, K = any> {
   }
 
   deq(n: number) {
+    //TODO update this to return the right sig
     if (!Number.isInteger(n)) {
       throw new Error('Must provide an integer as an argument to deq().');
     }
@@ -366,7 +396,7 @@ export class LinkedQueue<V, K = any> {
     ctx = ctx || null;
 
     while (this.head) {
-      fn.call(ctx, [this.head.key, this.head.value], index++);
+      const h = this.head;
       this.lookup.delete(this.head.key);
       this.head = this.head.after || null;
       if (this.head) {
@@ -374,22 +404,19 @@ export class LinkedQueue<V, K = any> {
       } else {
         this.tail = null;
       }
+      fn.call(ctx, [h.key, h.value], index++);
     }
 
     return this;
   }
 
-  deueueAll() {
-    throw 'not implemented yet  - should dequeue all items buffer all items onto an array and return the array.'
-  }
-
-  dequeue(): LinkedQueueValue<V> {
+  dequeue(): [K, V] | [] {
     const h = this.head;
     if (!h) {
       if (this.tail) {
         throw new Error('tail should not be defined if there is no head.');
       }
-      return null;
+      return [];
     }
     this.lookup.delete(h.key);
     this.head = h.after || null;
@@ -398,10 +425,14 @@ export class LinkedQueue<V, K = any> {
     } else {
       this.tail = null;
     }
-    return h;
+    return [
+      h.key,
+      h.value
+    ];
+
   }
 
-  removeLast(): LinkedQueueValue<V> {
+  removeLast(): ([K, V] | []) {
 
     const t = this.tail;
 
@@ -409,7 +440,7 @@ export class LinkedQueue<V, K = any> {
       if (this.head) {
         throw new Error('head should not be defined if there is no tail.');
       }
-      return null;
+      return [];
     }
 
     this.lookup.delete(t.key);
@@ -422,33 +453,10 @@ export class LinkedQueue<V, K = any> {
       this.head = null;
     }
 
-    return t;
-  }
-
-  // aliases
-
-  clear() {
-    return this.removeAll.apply(this, arguments);
-  }
-
-  unshift(k: any, obj?: any): void {
-    return this.addToFront.apply(this, arguments);
-  }
-
-  push(k: any, obj?: any): void {
-    return this.enqueue.apply(this, arguments);
-  }
-
-  add(k: any, obj?: any): void {
-    return this.enqueue.apply(this, arguments);
-  }
-
-  shift(): LinkedQueueValue<V> {
-    return this.dequeue.apply(this, arguments);
-  }
-
-  pop(): LinkedQueueValue<V> {
-    return this.removeLast.apply(this, arguments);
+    return [
+      t.key,
+      t.value
+    ];
   }
 
 }
