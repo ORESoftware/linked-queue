@@ -76,6 +76,41 @@ export class LinkedQueue<V, K = V> {
     }
   }
 
+
+  reverseIterator() {
+
+    return {
+      [Symbol.iterator]: (): Iterator<[K, V]> => {
+
+        let v = this.tail;
+
+        return {
+
+          next(): IteratorResult<[K, V], any> {
+
+            const r: { done: boolean, value: [K, V] } = v ? {
+              value: [v.key, v.value],
+              // empty array [] means we are done,
+              // since we return [] instead of null as a pattern here
+              done: false
+            } : {
+              done: true,
+              value: null
+            }
+
+            if (v) {
+              v = v.before;
+            }
+
+            return r
+
+          }
+        }
+
+      }
+    }
+  }
+
   dequeueIterator() {
 
     const self = this;
