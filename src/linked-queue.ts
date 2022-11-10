@@ -432,7 +432,7 @@ export class LinkedQueue<V, K = V> {
 
   }
 
-  removeLast(): ([K, V] | []) {
+  removeLast(): ([K, V] | [typeof IsVoidVal]) {
 
     const t = this.tail;
 
@@ -440,7 +440,7 @@ export class LinkedQueue<V, K = V> {
       if (this.head) {
         throw new Error('head should not be defined if there is no tail.');
       }
-      return [];
+      return [IsVoidVal];
     }
 
     this.lookup.delete(t.key);
