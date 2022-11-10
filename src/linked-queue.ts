@@ -395,23 +395,6 @@ export class LinkedQueue<V, K = V> {
 
   }
 
-  deq(n: number) {
-    //TODO update this to return the right sig
-    if (!Number.isInteger(n)) {
-      throw new Error('Must provide an integer as an argument to deq().');
-    }
-    if (n < 1) {
-      throw new Error('Must provide a positive integer as an argument to deq().');
-    }
-    const items: LinkedQueueValue<V>[] = [];
-    let v = true as any;
-    while (v && items.length < n) {
-      if ((v = this.dequeue())) {
-        items.push(v);
-      }
-    }
-    return items;
-  }
 
   forEach(fn: IteratorFunction<V, void>, ctx?: any): this {
     let v = this.head;
@@ -445,13 +428,31 @@ export class LinkedQueue<V, K = V> {
     return this;
   }
 
-  dequeue(): [K, V] | [] {
+  deq(n: number) {
+    //TODO update this to return the right sig
+    if (!Number.isInteger(n)) {
+      throw new Error('Must provide an integer as an argument to deq().');
+    }
+    if (n < 1) {
+      throw new Error('Must provide a positive integer as an argument to deq().');
+    }
+    const items: LinkedQueueValue<V>[] = [];
+    let v = true as any;
+    while (v && items.length < n) {
+      if ((v = this.dequeue())) {
+        items.push(v);
+      }
+    }
+    return items;
+  }
+
+  dequeue(): [K, V] | [typeof IsVoidVal] {
     const h = this.head;
     if (!h) {
       if (this.tail) {
         throw new Error('tail should not be defined if there is no head.');
       }
-      return [];
+      return [IsVoidVal];
     }
     this.lookup.delete(h.key);
     this.head = h.after || null;
