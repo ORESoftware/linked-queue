@@ -14,27 +14,25 @@ export interface LinkedQueueValue<T> {
   key: any,
 }
 
-export type IteratorFunction<T, V> = (val: LinkedQueueValue<T>, index: number) => V;
+export type IteratorFunction<T, V> = (val: [T,V], index: number) => V;
 
 const flattenDeep = (arr: Array<any>): Array<any> => {
   return Array.isArray(arr) ? arr.reduce((a, b) => [...flattenDeep(a), ...flattenDeep(b)], []) : [arr];
 };
 
-export class LinkedQueue<T, K = any> {
+export class LinkedQueue<V, K = any> {
 
-  private lookup = new Map<K, LinkedQueueValue<T>>();
+  private lookup = new Map<K, LinkedQueueValue<V>>();
   private head = null as any;
   private tail = null as any;
-  public length: number;
 
-  constructor() {
 
-    Object.defineProperty(this, 'length', {
-      get: () => {
-        return this.lookup.size;
-      }
-    });
+  get size(){
+    return this.lookup.size;
+  }
 
+  get length(){
+    return this.lookup.size;
   }
 
   getLength(): number {
@@ -43,6 +41,37 @@ export class LinkedQueue<T, K = any> {
 
   getSize(): number {
     return this.lookup.size;
+  }
+
+  iterator(){
+    return this;
+  }
+
+  getIterator(){
+    return this;
+  }
+
+  [Symbol.iterator](): Iterator<[K, V]> {
+
+    let v = this.head;
+
+    return {
+
+      next(): IteratorResult<[K, V], any> {
+
+        if(!v){
+          return {value: null, done:true}
+        }
+
+        const {key,value} = v;
+        v = v.after;
+
+        return {
+          value: [key, value],
+          done: false
+        }
+      }
+    }
   }
 
   getRandomKey() {
@@ -67,60 +96,59 @@ export class LinkedQueue<T, K = any> {
   getRandomItem() {
     try {
       return this.lookup.get(this.getRandomKey());
-    }
-    catch (err) {
+    } catch (err) {
       return null;
     }
   }
 
-  remove(k: any): LinkedQueueValue<T> {
+  remove(k: K): [K, V] | null {
 
     const v = this.lookup.get(k);
+    this.lookup.delete(k);
 
-    if (v) {
-
-      this.lookup.delete(k);
-
-      let before = v.before;
-      let after = v.after;
-
-      if (before) {
-        before.after = after || null;
-      }
-
-      if (after) {
-        after.before = before || null;
-      }
-
-      if (this.head === v) {
-        this.head = v.after || null;
-      }
-
-      if (this.tail === v) {
-        this.tail = v.before || null;
-      }
-
-      delete v.before;
-      delete v.after;
+    if (!v) {
+      return null;
     }
 
-    return v || null;
+    let before = v.before;
+    let after = v.after;
+
+    if (before) {
+      before.after = after || null;
+    }
+
+    if (after) {
+      after.before = before || null;
+    }
+
+    if (this.head === v) {
+      this.head = v.after || null;
+    }
+
+    if (this.tail === v) {
+      this.tail = v.before || null;
+    }
+
+    return [v.key, v.value];
   }
 
-  contains(k: any): boolean {
+  contains(k: K): boolean {
     return Boolean(this.lookup.get(k));
   }
 
-  get(k: any): LinkedQueueValue<T> {
+  get(k: K): LinkedQueueValue<V> {
     return this.lookup.get(k);
   }
 
-  peek(): LinkedQueueValue<T> {
-    return this.head;
+  peek(): [K, V] | null {
+    return !this.head ? null : [
+      this.head.key,
+      this.head.val
+    ];
   }
 
-  getOrderedList(): Array<LinkedQueueValue<T>> {
-    const ret: LinkedQueueValue<T>[] = [];
+  getOrderedList(): Array<LinkedQueueValue<V>> {
+    const ret: LinkedQueueValue<V>[] = [];
 
     let v = this.head;
 
@@ -132,16 +160,7 @@ export class LinkedQueue<T, K = any> {
     return ret;
   }
 
-  static getKeyValue(v: LinkedQueueValue<any>) {
-    return {
-      key: v.key,
-      value: v.value
-    }
-  }
-
-
-
-  map(fn: IteratorFunction<T, any>, ctx?: any): Array<any> {
+  map(fn: IteratorFunction<V, any>, ctx?: any): Array<any> {
 
     let v = this.head;
     let index = 0;
@@ -150,24 +169,24 @@ export class LinkedQueue<T, K = any> {
     const ret: Array<any> = [];
 
     while (v) {
-      ret.push(fn.call(ctx, LinkedQueue.getKeyValue(v), index++));
+      ret.push(fn.call(ctx, [v.key, v.value], index++));
       v = v.after;
     }
 
     return ret;
   }
 
-  filter(fn: IteratorFunction<T, boolean>, ctx?: any): LinkedQueueValue<T>[] {
+  filter(fn: IteratorFunction<V, boolean>, ctx?: any): [K, V][] {
 
     let v = this.head;
     let index = 0;
     ctx = ctx || null;
 
-    const ret: LinkedQueueValue<T>[] = [];
+    const ret: [K, V][] = [];
 
     while (v) {
-      if (fn.call(ctx, LinkedQueue.getKeyValue(v), index++)) {
-        ret.push(v);
+      if (fn.call(ctx, [v.key, v.value], index++)) {
+        ret.push([v.key, v.value]);
       }
       v = v.after;
     }
@@ -187,17 +206,23 @@ export class LinkedQueue<T, K = any> {
     throw new Error('not yet implemented.');
   }
 
-  first(): LinkedQueueValue<T> {
-    return this.head || null;
+  first(): [K, V] | null {
+    return !this.head ? null : [
+      this.head.key,
+      this.head.value
+    ]
   }
 
-  last(): LinkedQueueValue<T> {
-    return this.tail || null;
+  last(): [K, V] | null {
+    return !this.tail ? null : [
+      this.tail.key,
+      this.tail.value
+    ]
   }
 
-  getReverseOrderedList(): Array<LinkedQueueValue<T>> {
+  getReverseOrderedList(): Array<LinkedQueueValue<V>> {
 
-    const ret: LinkedQueueValue<T>[] = [];
+    const ret: LinkedQueueValue<V>[] = [];
     let v = this.tail;
 
     while (v) {
@@ -233,7 +258,7 @@ export class LinkedQueue<T, K = any> {
         chalk.magenta.bold(`Either remove the already enqueued item, or pass a unique value as the first argument to '${this.addToFront.name || 'unknown'}()'.`));
     }
 
-    const v = <LinkedQueueValue<T>>{
+    const v = <LinkedQueueValue<V>>{
       value: obj,
       key: k,
     };
@@ -257,105 +282,32 @@ export class LinkedQueue<T, K = any> {
 
   }
 
-  enq(...args: Array<any>) : void {
+  enq<K, V>(...args: Array<[K, V]>): void {
     for (let v of args) {
-      v['key'] ? this.enqueue(v.key, v.value) : this.enqueue(v.value)
+      this.enqueue(v[0], v[1])
     }
   }
 
-  deq(n: number) {
-    if (!Number.isInteger(n)) {
-      throw new Error('Must provide an integer as an argument to deq().');
-    }
-    if (n < 1) {
-      throw new Error('Must provide a positive integer as an argument to deq().');
-    }
-    const items: LinkedQueueValue<T>[] = [];
-    let v = true as any;
-    while (v && items.length < n) {
-      if (v = this.dequeue()) {
-        items.push(v);
-      }
-    }
-    return items;
-  }
-
-  forEach(fn: IteratorFunction<T, void>, ctx?: any): this {
-    let v = this.head;
-    let index = 0;
-    ctx = ctx || null;
-
-    while (v) {
-      fn.call(ctx, LinkedQueue.getKeyValue(v), index++);
-      v = v.after;
-    }
-    return this;
-  }
-
-  dequeueEach(fn: IteratorFunction<T, void>, ctx?: any): this {
-
-    let index = 0;
-    ctx = ctx || null;
-
-    while (this.head) {
-      fn.call(ctx, LinkedQueue.getKeyValue(this.head), index++);
-      this.lookup.delete(this.head.key);
-      this.head = this.head.after || null;
-      if (this.head) {
-        this.head.before = null;
-      }
-      else {
-        this.tail = null;
-      }
-    }
-
-    return this;
-  }
-
-  deueueAll(){
-    throw 'not implemented yet  - should dequeu all items buffer all items onto an array and return the array.'
-  }
-
-  dequeue(): LinkedQueueValue<T> {
-    const h = this.head;
-    if (!h) {
-      if (this.tail) {
-        throw new Error('tail should not be defined if there is no head.');
-      }
-      return null;
-    }
-    this.lookup.delete(h.key);
-    this.head = h.after || null;
-    if (this.head) {
-      this.head.before = null;
-    }
-    else {
-      this.tail = null;
-    }
-    return h;
-  }
-
-  enqueue(k: any, obj?: any): void {
+  enqueue(k: any, val: any): void {
 
     if (arguments.length < 1) {
-      throw new Error(`Please pass an argument to '${this.enq.name}()'.`);
-    }
-
-    if (!k) {
-      throw new Error(`Please pass a truthy value as the first argument to '${this.enq.name}()'`);
+      throw new Error(`Please pass an argument to '${this.enqueue.name}()'.`);
     }
 
     if (arguments.length === 1) {
-      obj = k;
+      val = k;
     }
 
     if (this.lookup.get(k)) {
-      throw new Error(chalk.magenta(`The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}. `) +
-        chalk.magenta.bold(`Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq.name || 'unknown'}()'.`));
+      throw new Error(
+        chalk.magenta(
+          `The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}. `) +
+        chalk.magenta.bold(
+          `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq.name || 'unknown'}()'.`));
     }
 
-    const v = <LinkedQueueValue<T>>{
-      value: obj,
+    const v = <LinkedQueueValue<V>>{
+      value: val,
       key: k
     };
 
@@ -379,7 +331,77 @@ export class LinkedQueue<T, K = any> {
 
   }
 
-  removeLast(): LinkedQueueValue<T> {
+  deq(n: number) {
+    if (!Number.isInteger(n)) {
+      throw new Error('Must provide an integer as an argument to deq().');
+    }
+    if (n < 1) {
+      throw new Error('Must provide a positive integer as an argument to deq().');
+    }
+    const items: LinkedQueueValue<V>[] = [];
+    let v = true as any;
+    while (v && items.length < n) {
+      if ((v = this.dequeue())) {
+        items.push(v);
+      }
+    }
+    return items;
+  }
+
+  forEach(fn: IteratorFunction<V, void>, ctx?: any): this {
+    let v = this.head;
+    let index = 0;
+    ctx = ctx || null;
+
+    while (v) {
+      fn.call(ctx, [v.key, v.value], index++);
+      v = v.after;
+    }
+    return this;
+  }
+
+  dequeueEach(fn: IteratorFunction<V, void>, ctx?: any): this {
+
+    let index = 0;
+    ctx = ctx || null;
+
+    while (this.head) {
+      fn.call(ctx, [this.head.key, this.head.value], index++);
+      this.lookup.delete(this.head.key);
+      this.head = this.head.after || null;
+      if (this.head) {
+        this.head.before = null;
+      } else {
+        this.tail = null;
+      }
+    }
+
+    return this;
+  }
+
+  deueueAll() {
+    throw 'not implemented yet  - should dequeue all items buffer all items onto an array and return the array.'
+  }
+
+  dequeue(): LinkedQueueValue<V> {
+    const h = this.head;
+    if (!h) {
+      if (this.tail) {
+        throw new Error('tail should not be defined if there is no head.');
+      }
+      return null;
+    }
+    this.lookup.delete(h.key);
+    this.head = h.after || null;
+    if (this.head) {
+      this.head.before = null;
+    } else {
+      this.tail = null;
+    }
+    return h;
+  }
+
+  removeLast(): LinkedQueueValue<V> {
 
     const t = this.tail;
 
@@ -396,8 +418,7 @@ export class LinkedQueue<T, K = any> {
 
     if (this.tail) {
       this.tail.after = null;
-    }
-    else {
+    } else {
       this.head = null;
     }
 
@@ -422,11 +443,11 @@ export class LinkedQueue<T, K = any> {
     return this.enqueue.apply(this, arguments);
   }
 
-  shift(): LinkedQueueValue<T> {
+  shift(): LinkedQueueValue<V> {
     return this.dequeue.apply(this, arguments);
   }
 
-  pop(): LinkedQueueValue<T> {
+  pop(): LinkedQueueValue<V> {
     return this.removeLast.apply(this, arguments);
   }
 

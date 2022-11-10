@@ -18,16 +18,16 @@ const fns = {
     q.addToFront({});
   },
   '3'() {
-    q.enq({});
+    q.enq([{},'hello']);
   },
   '4'() {
-    q.enq({});
+    q.enq([{},'hello']);
   },
   '5'() {
-    q.enq(uuid(), {});
+    q.enqueue([uuid(), {}]);
   },
   '6'() {
-    q.enqueue({});
+    q.enqueue(['dude',{}]);
   },
   '7'() {
     q.push(uuid(), {});
@@ -39,7 +39,7 @@ const fns = {
     q.addToFront({});
   },
   '10'() {
-    q.deq();
+    q.deq(1);
   },
   '11'() {
     q.dequeue();
