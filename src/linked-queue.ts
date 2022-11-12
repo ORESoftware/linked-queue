@@ -21,13 +21,23 @@ const flattenDeep = (arr: Array<any>): Array<any> => {
 };
 
 const IsVoidVal = Symbol('null result');
-export const IsVoid = IsVoidVal;
+
+export const IsVoid = {
+  check: (v: any) => v === IsVoidVal
+}
+
 
 export class LinkedQueue<V, K = V> {
 
   private lookup = new Map<K, LinkedQueueValue<V>>();
   private head: LinkedQueueValue<V> | null = null;
   private tail: LinkedQueueValue<V> = null;
+
+  getComputedProperties() {
+    return Object.assign({}, this, {
+      lookup: {size: this.lookup.size}
+    });
+  }
 
   get size() {
     return this.lookup.size;
@@ -352,7 +362,7 @@ export class LinkedQueue<V, K = V> {
     }
   }
 
-  enqueue(k: any, val: any): void {
+  enqueue(k: any, val?: any): void {
 
     if (arguments.length < 1) {
       throw new Error(`Please pass an argument to '${this.enqueue.name}()'.`);
@@ -371,8 +381,8 @@ export class LinkedQueue<V, K = V> {
     }
 
     const v = <LinkedQueueValue<V>>{
+      key: k,
       value: val,
-      key: k
     };
 
     this.lookup.set(k, v);
