@@ -7,11 +7,11 @@ export const r2gSmokeTest = function () {
   return true;
 };
 
-export interface LinkedQueueValue<V, K = V> {
-  after?: LinkedQueueValue<V>,
-  before?: LinkedQueueValue<V>,
+export interface LinkedQueueValue<V, K> {
+  after?: LinkedQueueValue<V, K>,
+  before?: LinkedQueueValue<V, K>,
   value: V,
-  key: any,
+  key: K,
 }
 
 export type IteratorFunction<T, V> = (val: [T, V], index: number) => V;
@@ -27,11 +27,11 @@ export const IsVoid = {
 }
 
 
-export class LinkedQueue<V, K = V> {
+export class LinkedQueue<V, K> {
 
-  private lookup = new Map<K, LinkedQueueValue<V>>();
-  private head: LinkedQueueValue<V> | null = null;
-  private tail: LinkedQueueValue<V> = null;
+  private lookup = new Map<K, LinkedQueueValue<V, K>>();
+  private head: LinkedQueueValue<V, K> | null = null;
+  private tail: LinkedQueueValue<V, K> = null;
 
   getComputedProperties() {
     return Object.assign({}, this, {
@@ -294,13 +294,13 @@ export class LinkedQueue<V, K = V> {
     ]
   }
 
-  getReverseOrderedList(): Array<LinkedQueueValue<V>> {
+  getReverseOrderedList(): [K,V][] {
 
-    const ret: LinkedQueueValue<V>[] = [];
+    const ret: [K,V][] = [];
     let v = this.tail;
 
     while (v) {
-      ret.push(v);
+      ret.push([v.key, v.value]);
       v = v.before;
     }
 
@@ -313,7 +313,7 @@ export class LinkedQueue<V, K = V> {
     this.lookup.clear();
   }
 
-  addToFront(k: any, obj?: any): void {
+  addToFront(k: K, obj?: V): void {
 
     if (arguments.length < 1) {
       throw new Error(`Please pass an argument to '${this.addToFront.name}'()`);
@@ -324,7 +324,7 @@ export class LinkedQueue<V, K = V> {
     }
 
     if (arguments.length === 1) {
-      obj = k;
+      obj = <any>k;
     }
 
     if (this.lookup.get(k)) {
@@ -332,7 +332,7 @@ export class LinkedQueue<V, K = V> {
         chalk.magenta.bold(`Either remove the already enqueued item, or pass a unique value as the first argument to '${this.addToFront.name || 'unknown'}()'.`));
     }
 
-    const v = <LinkedQueueValue<V>>{
+    const v = <LinkedQueueValue<V, K>>{
       value: obj,
       key: k,
     };
@@ -380,7 +380,7 @@ export class LinkedQueue<V, K = V> {
           `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq.name || 'unknown'}()'.`));
     }
 
-    const v = <LinkedQueueValue<V>>{
+    const v = <LinkedQueueValue<V, K>>{
       key: k,
       value: val,
     };
@@ -446,7 +446,7 @@ export class LinkedQueue<V, K = V> {
     if (n < 1) {
       throw new Error('Must provide a positive integer as an argument to deq().');
     }
-    const items: LinkedQueueValue<V>[] = [];
+    const items: LinkedQueueValue<V,K>[] = [];
     let v = true as any;
     while (v && items.length < n) {
       if ((v = this.dequeue())) {
