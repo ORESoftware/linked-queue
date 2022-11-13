@@ -155,8 +155,8 @@ export class LinkedQueue<V, K = V> {
     }
 
     const r = Math.floor(Math.random() * size);
-    let i = 0, k = null;
-    for (k of this.lookup.keys()) {
+    let i = 0;
+    for (var k of this.lookup.keys()) {
       if (i === r) {
         break;
       }
@@ -166,12 +166,13 @@ export class LinkedQueue<V, K = V> {
     return k;
   }
 
-  getRandomItem() {
+  getRandomItem() : [K,V] | [typeof IsVoidVal] {
     try {
-      return this.lookup.get(this.getRandomKey());
+      var v = this.lookup.get(this.getRandomKey());
     } catch (err) {
-      return null;
+      return [IsVoidVal];
     }
+    return [v.key, v.value]
   }
 
   remove(k: K): [K, V] | [typeof IsVoidVal] {
@@ -221,13 +222,12 @@ export class LinkedQueue<V, K = V> {
     ];
   }
 
-  getOrderedList(): Array<LinkedQueueValue<V>> {
-    const ret: LinkedQueueValue<V>[] = [];
-
+  getOrderedList(): Array<[K,V]> {
+    const ret: [K,V][] = [];
     let v = this.head;
 
     while (v) {
-      ret.push(v);
+      ret.push([v.key,v.value]);
       v = v.after;
     }
 
