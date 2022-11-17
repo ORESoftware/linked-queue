@@ -11,7 +11,7 @@ export interface LinkedQueueValue<V, K> {
   after?: LinkedQueueValue<V, K>,
   before?: LinkedQueueValue<V, K>,
   value: V,
-  key: K,
+  key: any,
 }
 
 export type IteratorFunction<T, V> = (val: [T, V], index: number) => V;
@@ -27,16 +27,16 @@ export const IsVoid = {
 }
 
 
-export class LinkedQueue<V, K> {
+export class LinkedQueue<V, K = any> {
 
   private lookup = new Map<K, LinkedQueueValue<V, K>>();
   private head: LinkedQueueValue<V, K> | null = null;
   private tail: LinkedQueueValue<V, K> = null;
 
   getComputedProperties() {
-    return Object.assign({}, this, {
-      lookup: {size: this.lookup.size}
-    });
+    return {
+      size: this.lookup.size
+    };
   }
 
   get size() {
