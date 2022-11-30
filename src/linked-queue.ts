@@ -39,6 +39,19 @@ export class LinkedQueue<V, K = any> {
     };
   }
 
+  toJSON(){
+    return {
+      size: this.lookup.size
+    }
+  }
+
+  [util.inspect.custom]() {
+    //TODO: log head/tail
+    return {
+      size: this.lookup.size
+    }
+  }
+
   get size() {
     return this.lookup.size;
   }
@@ -75,7 +88,7 @@ export class LinkedQueue<V, K = any> {
           return {value: null, done: true}
         }
 
-        const {key, value} = v;
+        const [key, value] = [v.key, v.value];
         v = v.after;
 
         return {
@@ -138,7 +151,7 @@ export class LinkedQueue<V, K = any> {
               value: d,
               // empty array [] means we are done,
               // since we return [] instead of null as a pattern here
-              done: d.length < 1
+              done: IsVoid.check(d[0])
             }
           }
         }
