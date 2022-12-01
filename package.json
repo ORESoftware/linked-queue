@@ -1,6 +1,6 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "2.1.127",
+  "version": "2.1.128",
   "description": "Synchronous queue implementation with constant/linear time operations.",
   "main": "dist/linked-queue.js",
   "types": "dist/linked-queue.d.ts",
