@@ -33,6 +33,14 @@ export class LinkedQueue<V, K = any> {
   private head: LinkedQueueValue<V, K> | null = null;
   private tail: LinkedQueueValue<V, K> = null;
 
+  static IsVoid(v: any){
+    return v === IsVoidVal;
+  }
+
+  checkIfVoid(v: any){
+    return v === IsVoidVal;
+  }
+
   getComputedProperties() {
     return {
       size: this.lookup.size
@@ -289,7 +297,7 @@ export class LinkedQueue<V, K = any> {
     throw new Error('not yet implemented.');
   }
 
-  insertAtIndex() {
+  insertAtIndex(k: K, v: V) {
     throw new Error('not yet implemented.');
   }
 
