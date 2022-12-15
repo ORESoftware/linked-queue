@@ -84,7 +84,6 @@ class SortedQueue<V, K = any> {
   find(val: V) {
 
     let currentNode = this.rootNode;
-
     let numOfSearches = 0;
 
     while (true) {
@@ -229,7 +228,7 @@ const sq = new SortedQueue(rootNode, {
 const vals = [];
 
 console.time('start');
-for (let i = 0; i < 10000; i++) {
+for (let i = 0; i < 100000; i++) {
   const r = Math.random();
   console.time(String(r));
   sq.insert(r);
@@ -266,11 +265,11 @@ const doRecurse = <K, V>(n: Node<V, K>, count: number) => {
 };
 
 doRecurse(rootNode, 0);
-// console.log(sq);
-//
-// for (const v of vals) {
-//   console.log(sq.find(v).numOfSearches);
-// }
+console.log(sq);
+
+for (const v of vals) {
+  console.log(sq.find(v).numOfSearches);
+}
 // console.log(sq.find(0.375));
 // console.log(sq.find(0.8125));
 //
