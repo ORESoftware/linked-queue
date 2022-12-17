@@ -403,8 +403,8 @@ const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 18 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
-    count > 18 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
+    count > 17 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 17 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
@@ -471,7 +471,8 @@ const sq = new SortedQueue(rootNode, {
 const vals = [];
 
 console.time('start');
-for (let i = 0; i < 100000; i++) {
+
+for (let i = 0; i < 1000; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
@@ -527,11 +528,11 @@ const runLog3 = () => {
 
   console.time('bar3')
   sq.iterateAll(z => {
-    // if (z <= previous) {
-    //   // throw new Error('smaller.');
-    // }
-    // count++
-    // previous = z;
+    if (z <= previous) {
+      // throw new Error('smaller.');
+    }
+    count++
+    previous = z;
     // console.log('val:', z);
   });
   console.timeEnd('bar3')
@@ -542,7 +543,7 @@ const runLog3 = () => {
 runLog1();
 runLog2();
 runLog3();
-throw 'fpoo'
+// throw 'fpoo'
 
 
 const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
@@ -574,15 +575,19 @@ const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
 };
 
 doRecurse(rootNode, 0);
-console.log(sq);
+// console.log(sq);
 
 
 for (const v of vals) {
   console.log(sq.find(v).numOfSearches);
 }
-console.log(sq.find(0.375));
-console.log(sq.find(0.8125));
 
-console.log(sq.findNextBiggest(0.11));
+console.log(sq.find(0.5).numOfSearches);
+console.log(sq.find(0.25).numOfSearches);
+console.log(sq.find(0.375).numOfSearches);
+console.log(sq.find(0.8125).numOfSearches);
+
+//TODO: fix this method
+console.log(sq.findNextBiggest(0.11).currentNode.val);
 
 
