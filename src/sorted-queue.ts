@@ -18,7 +18,11 @@ class SortedQueueNode<V, K> {
   right: SortedQueueNode<V, K> = null;
   leftOrRight: 'left' | 'right' = null;
 
-  constructor({key, val, leftOrRight}: KeyVal<V, K>, left?: SortedQueueNode<V, K> | Symbol, right?: SortedQueueNode<V, K> | Symbol) {
+  constructor({
+                key,
+                val,
+                leftOrRight
+              }: KeyVal<V, K>, left?: SortedQueueNode<V, K> | Symbol, right?: SortedQueueNode<V, K> | Symbol) {
     this.val = val;
     this.key = key;
     if (arguments.length > 2) {
@@ -149,6 +153,118 @@ class SortedQueue<V, K = any> {
 
   }
 
+  logInOrder2(node: SortedQueueNode<any, any>) {
+
+    if (node === null) {
+      return;
+    }
+
+    if (node.left) {
+      this.inOrder(node.left);
+    }
+
+    console.log(node.val);
+
+    if (node.right) {
+      this.inOrder(node.right);
+    }
+
+
+  }
+
+  * inOrder(node: SortedQueueNode<any, any>): any {
+
+    if (node === null) {
+      return;
+    }
+
+    if (node.left) {
+      yield* this.inOrder(node.left);
+    }
+
+    yield node.val;
+
+    if (node.right) {
+      yield* this.inOrder(node.right);
+    }
+
+  }
+
+  [Symbol.iterator](node: SortedQueueNode<any, any>): any {
+
+    const sq = this;
+    let currentNode = this.rootNode;
+    const queue = [this.rootNode];
+
+    return {
+      next() {
+
+        if(!currentNode.left){
+
+        }
+
+        if (currentNode === null) {
+          return {
+            done: true,
+            value: null
+          }
+        }
+
+        if (node.left) {
+          currentNode = node.left;
+          return {
+            done: false,
+            value: node.left.val
+          }
+        }
+
+
+        if (node.right) {
+          return
+        }
+
+        return {
+          done: false,
+          value: null
+        }
+
+      }
+    }
+
+
+  }
+
+  iterator() {
+
+    const sq = this;
+
+    return {
+
+      [Symbol.iterator](node: SortedQueueNode<any, any>): any {
+
+        return {
+          next() {
+
+            for(const n of sq.iterator()){
+
+            }
+
+            if (node.right) {
+              return
+            }
+
+            return {
+              done: false,
+              value: <unknown>null
+            }
+
+          }
+        }
+
+      }
+    }
+  }
+
   find(val: V) {
 
     let currentNode = this.rootNode;
@@ -193,7 +309,6 @@ class SortedQueue<V, K = any> {
 
     const newNode = new SortedQueueNode<V, K>({val, key});
     let currentNode = this.rootNode;
-
     let numOfSearches = 0;
 
     while (true) {
@@ -205,10 +320,10 @@ class SortedQueue<V, K = any> {
       if (v <= 0) {
 
         if (!currentNode.left) {
-          newNode.parent = currentNode;
+          // newNode.parent = currentNode;
           currentNode.left = newNode;
-          newNode.leftOrRight = 'left';
-          this.doLeftRotation(currentNode);
+          // newNode.leftOrRight = 'left';
+          // this.doLeftRotation(currentNode);
           break;
         }
 
@@ -220,10 +335,10 @@ class SortedQueue<V, K = any> {
 
 
         if (!currentNode.right) {
-          newNode.parent = currentNode;
+          // newNode.parent = currentNode;
           currentNode.right = newNode;
-          newNode.leftOrRight = 'right';
-          this.doRightRotation(currentNode);
+          // newNode.leftOrRight = 'right';
+          // this.doRightRotation(currentNode);
           break;
         }
 
@@ -248,8 +363,8 @@ const getNode = <V, K>(v: number, count: number): SortedQueueNode<V, K> => {
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 19 ? emptyNodeSymbol : getNode(v / 2, count + 1),
-    count > 19 ? emptyNodeSymbol : getNode(v * 3 / 2, count + 1),
+    count > 23 ? emptyNodeSymbol : getNode(v / 2, count + 1),
+    count > 23 ? emptyNodeSymbol : getNode(v * 3 / 2, count + 1),
   );
 }
 
@@ -316,7 +431,7 @@ const sq = new SortedQueue(rootNode, {
 const vals = [];
 
 console.time('start');
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 1; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
@@ -325,6 +440,25 @@ for (let i = 0; i < 1000; i++) {
 }
 console.timeEnd('start');
 
+
+const runlog = () => {
+  let previous = 0;
+  let count = 0;
+
+  for (const z of sq.inOrder(sq.rootNode)) {
+    if(z < previous){
+      throw new Error('smaller.');
+    }
+    count++
+    previous = z;
+    console.log(z);
+  }
+
+  console.log({count});
+}
+
+runlog();
+throw 'fpoo'
 
 const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
 
@@ -357,6 +491,7 @@ const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
 doRecurse(rootNode, 0);
 console.log(sq);
 
+
 for (const v of vals) {
   console.log(sq.find(v).numOfSearches);
 }
@@ -364,3 +499,4 @@ console.log(sq.find(0.375));
 console.log(sq.find(0.8125));
 
 console.log(sq.findNextBiggest(0.11));
+
