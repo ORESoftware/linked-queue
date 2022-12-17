@@ -25,7 +25,7 @@ class SortedQueueNode<V, K> {
               }: KeyVal<V, K>, left?: SortedQueueNode<V, K> | Symbol, right?: SortedQueueNode<V, K> | Symbol) {
     this.val = val;
     this.key = key;
-    if (arguments.length > 2) {
+    if (arguments.length > 1) {
       if (left !== emptyNodeSymbol) {
         if (!(left && left instanceof SortedQueueNode)) {
           throw new Error('Argument for left node, should be instance of Node.')
@@ -35,7 +35,7 @@ class SortedQueueNode<V, K> {
       }
 
     }
-    if (arguments.length > 3) {
+    if (arguments.length > 2) {
       if (right !== emptyNodeSymbol) {
         if (!(right && right instanceof SortedQueueNode)) {
           throw new Error('argument for right node, should be instance of Node.')
@@ -44,7 +44,6 @@ class SortedQueueNode<V, K> {
         this.right.parent = this;
       }
     }
-
 
   }
 
@@ -160,32 +159,48 @@ class SortedQueue<V, K = any> {
     }
 
     if (node.left) {
-      this.inOrder(node.left);
+      this.logInOrder2(node.left);
     }
 
     console.log(node.val);
 
     if (node.right) {
-      this.inOrder(node.right);
+      this.logInOrder2(node.right);
     }
-
-
   }
 
-  * inOrder(node: SortedQueueNode<any, any>): any {
+  inOrderCallback(node: SortedQueueNode<any, any>, cb: (v: number) => void): any {
 
     if (node === null) {
       return;
     }
 
     if (node.left) {
-      yield* this.inOrder(node.left);
+      this.inOrderCallback(node.left, cb);
+    }
+
+    cb(node.val);
+
+    if (node.right) {
+      this.inOrderCallback(node.right, cb);
+    }
+
+  }
+
+  * inOr3der(node: SortedQueueNode<any, any>): any {
+
+    if (node === null) {
+      return;
+    }
+
+    if (node.left) {
+      yield* this.inOr3der(node.left);
     }
 
     yield node.val;
 
     if (node.right) {
-      yield* this.inOrder(node.right);
+      yield* this.inOr3der(node.right);
     }
 
   }
@@ -199,7 +214,7 @@ class SortedQueue<V, K = any> {
     return {
       next() {
 
-        if(!currentNode.left){
+        if (!currentNode.left) {
 
         }
 
@@ -245,7 +260,7 @@ class SortedQueue<V, K = any> {
         return {
           next() {
 
-            for(const n of sq.iterator()){
+            for (const n of sq.iterator()) {
 
             }
 
@@ -262,6 +277,31 @@ class SortedQueue<V, K = any> {
         }
 
       }
+    }
+  }
+
+  iterateAll(cb: (v: number) => void) {
+
+    const nodes = [this.rootNode];
+
+    while (nodes.length) {
+
+      const n = nodes.pop();
+
+      if (!n) {
+        throw new Error('wtf')
+      }
+
+      cb(n.val as any);
+
+      if (n.right) {
+        nodes.push(n.right);
+      }
+
+      if (n.left) {
+        nodes.push(n.left);
+      }
+
     }
   }
 
@@ -359,17 +399,17 @@ class SortedQueue<V, K = any> {
 
 }
 
-const getNode = <V, K>(v: number, count: number): SortedQueueNode<V, K> => {
+const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<V, K> => {
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 23 ? emptyNodeSymbol : getNode(v / 2, count + 1),
-    count > 23 ? emptyNodeSymbol : getNode(v * 3 / 2, count + 1),
+    count > 18 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 18 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
 console.time('foo')
-const rootNode = getNode(0.5, 1);
+const rootNode = getNode(0.5, 0.25, 1);
 (rootNode as any).isRoot = true;
 console.timeEnd('foo');
 // process.exit(0);
@@ -431,34 +471,79 @@ const sq = new SortedQueue(rootNode, {
 const vals = [];
 
 console.time('start');
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 100000; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
   // console.timeEnd(String(r));
   vals.push(r);
 }
+
 console.timeEnd('start');
 
 
-const runlog = () => {
+const runLog1 = () => {
+
   let previous = 0;
   let count = 0;
 
-  for (const z of sq.inOrder(sq.rootNode)) {
-    if(z < previous){
+  console.time('bar1')
+  for (const z of sq.inOr3der(sq.rootNode)) {
+    if (z < previous) {
       throw new Error('smaller.');
     }
     count++
     previous = z;
-    console.log(z);
+    // console.log('val:', z);
   }
+  console.timeEnd('bar1');
 
   console.log({count});
 }
 
-runlog();
+const runLog2 = () => {
+
+  let previous = 0;
+  let count = 0;
+
+  console.time('bar2')
+  sq.inOrderCallback(sq.rootNode, z => {
+    if (z <= previous) {
+      throw new Error('smaller.');
+    }
+    count++
+    previous = z;
+    // console.log('val:', z);
+  });
+
+  console.timeEnd('bar2')
+  console.log({count});
+}
+
+const runLog3 = () => {
+
+  let previous = 0;
+  let count = 0;
+
+  console.time('bar3')
+  sq.iterateAll(z => {
+    // if (z <= previous) {
+    //   // throw new Error('smaller.');
+    // }
+    // count++
+    // previous = z;
+    // console.log('val:', z);
+  });
+  console.timeEnd('bar3')
+
+  console.log({count});
+}
+
+runLog1();
+runLog2();
+runLog3();
 throw 'fpoo'
+
 
 const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
 
@@ -499,4 +584,5 @@ console.log(sq.find(0.375));
 console.log(sq.find(0.8125));
 
 console.log(sq.findNextBiggest(0.11));
+
 
