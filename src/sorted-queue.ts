@@ -1,3 +1,6 @@
+#!/usr/bin/env ts-node
+'use strict';
+
 export interface KeyVal<V, K> {
   key?: K,
   val: V,
@@ -187,7 +190,7 @@ class SortedQueue<V, K = any> {
 
   }
 
-  * inOr3der(node: SortedQueueNode<any, any>): any {
+  * inOr3der(node: SortedQueueNode<any, any> = this.rootNode): any {
 
     if (node === null) {
       return;
@@ -205,7 +208,7 @@ class SortedQueue<V, K = any> {
 
   }
 
-  [Symbol.iterator](node: SortedQueueNode<any, any>): any {
+  [Symbol('foo')](node: SortedQueueNode<any, any>): any {
 
     const sq = this;
     let currentNode = this.rootNode;
@@ -250,34 +253,7 @@ class SortedQueue<V, K = any> {
   }
 
   iterator() {
-
-    const sq = this;
-
-    return {
-
-      [Symbol.iterator](node: SortedQueueNode<any, any>): any {
-
-        return {
-          next() {
-
-            for (const n of sq.iterator()) {
-
-            }
-
-            if (node.right) {
-              return
-            }
-
-            return {
-              done: false,
-              value: <unknown>null
-            }
-
-          }
-        }
-
-      }
-    }
+    return this;
   }
 
   iterateAll(cb: (v: number) => void) {
@@ -303,6 +279,53 @@ class SortedQueue<V, K = any> {
       }
 
     }
+  }
+
+  [Symbol('iterator')]() {
+    const stack: any[] = [this.rootNode];
+    let currentNode = this.rootNode;
+
+    return {
+      next() {
+        while (currentNode !== null || stack.length > 0) {
+          if (currentNode !== null) {
+            stack.push(currentNode);
+            currentNode = currentNode.left || null;
+          } else {
+            const node = stack.pop();
+            // currentNode = node.right;
+            // currentNode = stack.pop();
+            currentNode = node.right || null;
+            return {done: false, value: node.val};
+          }
+        }
+        return {done: true, value: null};
+      }
+    };
+  }
+
+  [Symbol.iterator]() {
+    const stack: any[] = [];
+    let currentNode = this.rootNode;
+
+    return {
+      next() {
+
+        while (currentNode !== null) {
+          stack.push(currentNode);
+          currentNode = currentNode.left || null;
+        }
+
+        if (stack.length < 1) {
+          return {done: true, value: null};
+        }
+
+        const node = stack.pop();
+        currentNode = node.right || null;
+        return {done: false, value: node.val};
+
+      }
+    };
   }
 
   find(val: V) {
@@ -414,6 +437,7 @@ const rootNode = getNode(0.5, 0.25, 1);
 console.timeEnd('foo');
 // process.exit(0);
 
+
 const rootNode2 = new SortedQueueNode<number, number>(
   {val: 0.5},
 
@@ -468,6 +492,8 @@ const sq = new SortedQueue(rootNode, {
   compareByNum: ((a, b) => (a as number) - (b as number)),
 });
 
+
+
 const vals = [];
 
 console.time('start');
@@ -483,13 +509,29 @@ for (let i = 0; i < 1000; i++) {
 console.timeEnd('start');
 
 
+const runLog0 = () => {
+  let count = 0;
+  let prev: any = 0;
+  console.time('bar0')
+  for (const v of sq) {
+    if (v <= prev) {
+      console.log(count++, v);
+      throw 'smaller 2';
+    }
+    prev = v;
+    // console.log(count++, v);
+  }
+  console.timeEnd('bar0');
+
+}
+
 const runLog1 = () => {
 
   let previous = 0;
   let count = 0;
 
   console.time('bar1')
-  for (const z of sq.inOr3der(sq.rootNode)) {
+  for (const z of sq.inOr3der()) {
     if (z < previous) {
       throw new Error('smaller.');
     }
@@ -540,6 +582,7 @@ const runLog3 = () => {
   console.log({count});
 }
 
+runLog0();
 runLog1();
 runLog2();
 runLog3();
@@ -578,9 +621,9 @@ doRecurse(rootNode, 0);
 // console.log(sq);
 
 
-for (const v of vals) {
-  console.log(sq.find(v).numOfSearches);
-}
+// for (const v of vals) {
+//   console.log(sq.find(v).numOfSearches);
+// }
 
 console.log(sq.find(0.5).numOfSearches);
 console.log(sq.find(0.25).numOfSearches);
