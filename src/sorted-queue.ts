@@ -155,20 +155,20 @@ class SortedQueue<V, K = any> {
 
   }
 
-  logInOrder2(node: SortedQueueNode<any, any>) {
+  logInOrder(node: SortedQueueNode<any, any>) {
 
     if (node === null) {
       return;
     }
 
     if (node.left) {
-      this.logInOrder2(node.left);
+      this.logInOrder(node.left);
     }
 
     console.log(node.val);
 
     if (node.right) {
-      this.logInOrder2(node.right);
+      this.logInOrder(node.right);
     }
   }
 
@@ -190,66 +190,81 @@ class SortedQueue<V, K = any> {
 
   }
 
-  * inOr3der(node: SortedQueueNode<any, any> = this.rootNode): any {
+  * inOrder(node: SortedQueueNode<any, any> = this.rootNode): any {
 
     if (node === null) {
       return;
     }
 
     if (node.left) {
-      yield* this.inOr3der(node.left);
+      yield* this.inOrder(node.left);
     }
 
     yield node.val;
 
     if (node.right) {
-      yield* this.inOr3der(node.right);
+      yield* this.inOrder(node.right);
     }
 
   }
 
-  [Symbol('foo')](node: SortedQueueNode<any, any>): any {
-
-    const sq = this;
+  findSmallestVal() {
     let currentNode = this.rootNode;
-    const queue = [this.rootNode];
+    while (currentNode.left) {
+      currentNode = currentNode.left
+    }
+    return currentNode;
+  }
 
-    return {
-      next() {
+  findSmallestGivenVal(node: SortedQueueNode<any, any>) {
+    while (node.left) {
+      node = node.left
+    }
+    return node;
+  }
 
-        if (!currentNode.left) {
+  findNextLargest(node: SortedQueueNode<any, any> = this.findSmallestVal()) {
 
+    if (node === null) {
+      throw new Error('no current node.');
+    }
+
+    if (node.right) {
+      return this.findSmallestGivenVal(node.right);
+    }
+
+    const parent = node.parent;
+
+    if (!parent) {
+      return null;
+    }
+
+    if (parent.left === node) {
+      if (parent.right) {
+        return this.findSmallestGivenVal(parent.right);
+      }
+      // if(!parent.parent){
+      //   // root node?
+      //   return parent;
+      // }
+      // return parent;
+    }
+
+    if (parent.right !== node) {
+      throw new Error('this should never happen.')
+    }
+
+    let n = node;
+    while (n.parent) {
+      n = n.parent;
+      if (n.parent) {
+        if (n.parent.right) {
+          return this.findSmallestGivenVal(n.parent.right);
         }
-
-        if (currentNode === null) {
-          return {
-            done: true,
-            value: null
-          }
-        }
-
-        if (node.left) {
-          currentNode = node.left;
-          return {
-            done: false,
-            value: node.left.val
-          }
-        }
-
-
-        if (node.right) {
-          return
-        }
-
-        return {
-          done: false,
-          value: null
-        }
-
       }
     }
 
-
+    return null;
   }
 
   iterator() {
@@ -281,30 +296,9 @@ class SortedQueue<V, K = any> {
     }
   }
 
-  [Symbol('iterator')]() {
-    const stack: any[] = [this.rootNode];
-    let currentNode = this.rootNode;
-
-    return {
-      next() {
-        while (currentNode !== null || stack.length > 0) {
-          if (currentNode !== null) {
-            stack.push(currentNode);
-            currentNode = currentNode.left || null;
-          } else {
-            const node = stack.pop();
-            // currentNode = node.right;
-            // currentNode = stack.pop();
-            currentNode = node.right || null;
-            return {done: false, value: node.val};
-          }
-        }
-        return {done: true, value: null};
-      }
-    };
-  }
 
   [Symbol.iterator]() {
+    //  iterates through all nodes in ascending fashion
     const stack: any[] = [];
     let currentNode = this.rootNode;
 
@@ -426,8 +420,8 @@ const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 17 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
-    count > 17 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
+    count > 14 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 14 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
@@ -493,7 +487,6 @@ const sq = new SortedQueue(rootNode, {
 });
 
 
-
 const vals = [];
 
 console.time('start');
@@ -525,13 +518,16 @@ const runLog0 = () => {
 
 }
 
+// runLog0();
+// throw 'foo'
+
 const runLog1 = () => {
 
   let previous = 0;
   let count = 0;
 
   console.time('bar1')
-  for (const z of sq.inOr3der()) {
+  for (const z of sq.inOrder()) {
     if (z < previous) {
       throw new Error('smaller.');
     }
@@ -624,7 +620,7 @@ doRecurse(rootNode, 0);
 // for (const v of vals) {
 //   console.log(sq.find(v).numOfSearches);
 // }
-
+//
 console.log(sq.find(0.5).numOfSearches);
 console.log(sq.find(0.25).numOfSearches);
 console.log(sq.find(0.375).numOfSearches);
@@ -632,5 +628,29 @@ console.log(sq.find(0.8125).numOfSearches);
 
 //TODO: fix this method
 console.log(sq.findNextBiggest(0.11).currentNode.val);
+
+console.log(sq.findNextLargest().val);
+
+console.log(
+  'zzz:',
+  sq.findNextLargest(sq.findNextLargest(sq.findNextLargest())).val
+);
+
+console.log(
+  'zzz:',
+  sq.findNextLargest(sq.findNextLargest(sq.findNextLargest(sq.findNextLargest()))).val
+);
+
+let count = 0;
+let next = sq.findNextLargest();
+while (next) {
+  next = sq.findNextLargest(next);
+  console.log(next.val);
+  if (count++ > 5) {
+    break;
+  }
+}
+
+console.log(sq.findNextLargest(sq.rootNode).val);
 
 
