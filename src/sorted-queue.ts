@@ -208,7 +208,7 @@ class SortedQueue<V, K = any> {
 
   }
 
-  findSmallestVal() {
+  findSmallestValFromRoot() {
     let currentNode = this.rootNode;
     if (!currentNode) {
       throw new Error('missing root node?')
@@ -228,10 +228,15 @@ class SortedQueue<V, K = any> {
     while (node.left) {
       node = node.left
     }
+
+    if (!node) {
+      throw new Error('missing left node?')
+    }
+
     return node;
   }
 
-  findNextLargestOld(node: SortedQueueNode<any, any> = this.findSmallestVal()) {
+  findNextLargestOld(node: SortedQueueNode<any, any> = this.findSmallestValFromRoot()) {
 
     if (!node) {
       throw new Error('no current node.');
@@ -258,7 +263,7 @@ class SortedQueue<V, K = any> {
     return node;
   }
 
-  findNextLargest(node: SortedQueueNode<any, any> = this.findSmallestVal()) : SortedQueueNode<any, any> {
+  findNextLargest(node: SortedQueueNode<any, any> = this.findSmallestValFromRoot()): SortedQueueNode<any, any> {
 
     if (!node) {
       throw new Error('no current node.');
@@ -268,21 +273,41 @@ class SortedQueue<V, K = any> {
       return this.findSmallestGivenVal(node.right);
     }
 
-    while (node.parent) {
-
-      if(node.parent.right === node){
-        node = node.parent;
-        continue;
-      }
-
-      if (node.parent.right && node.parent.right !== node) {
-        return this.findSmallestGivenVal(node.parent.right);
-      }
-
-      node = node.parent;
+    if (!node.parent) {
+      return null;
     }
 
-    return node.right;
+    if (node.parent.left === node) {
+      return node.parent;
+    }
+
+    let n = node.parent;
+
+    // if (n.parent && n.parent.right && n.parent.right !== n) {
+    //   return this.findSmallestGivenVal(n.parent.right);
+    // } else {
+    //   return n.parent;
+    // }
+
+
+    while (n.parent) {
+      if (n.parent.right && n.parent.right === n) {
+        n = n.parent;
+      } else {
+        if(n.parent.left !== n){
+          throw new Error('oddd');
+        }
+        return n.parent;
+      }
+
+      // if(!n.parent){
+      //   return this.findSmallestGivenVal(n);
+      // }
+    }
+
+    return null;
+    // return this.findSmallestGivenVal(n);
+    // return this.findSmallestGivenVal(n.parent || n);
   }
 
   iterator() {
@@ -438,19 +463,19 @@ const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 14 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
-    count > 14 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
+    count > 9 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 9 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
 console.time('foo')
-const rootNode = getNode(0.5, 0.25, 1);
-(rootNode as any).isRoot = true;
+const rootNode3 = getNode(0.5, 0.25, 1);
+(rootNode3 as any).isRoot = true;
 console.timeEnd('foo');
 // process.exit(0);
 
 
-const rootNode2 = new SortedQueueNode<number, number>(
+const rootNode = new SortedQueueNode<number, number>(
   {val: 0.5},
 
   new SortedQueueNode<number, number>(
@@ -468,9 +493,23 @@ const rootNode2 = new SortedQueueNode<number, number>(
       {val: 0.375},
       new SortedQueueNode<number, number>(
         {val: 0.3125},
+        new SortedQueueNode<number, number>(
+          {val: 0.3025},
+          new SortedQueueNode<number, number>(
+            {val: 0.3005},
+          ),
+        ),
       ),
       new SortedQueueNode<number, number>(
         {val: 0.4375},
+        emptyNodeSymbol,
+        new SortedQueueNode<number, number>(
+          {val: 0.4385},
+          emptyNodeSymbol,
+          new SortedQueueNode<number, number>(
+            {val: 0.4395},
+          ),
+        ),
       ),
     ),
   ),
@@ -509,7 +548,7 @@ const vals = [];
 
 console.time('start');
 
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 5; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
@@ -592,7 +631,6 @@ const runLog3 = () => {
     // console.log('val:', z);
   });
   console.timeEnd('bar3')
-
   console.log({count});
 }
 
@@ -631,41 +669,52 @@ const doRecurse = <K, V>(n: SortedQueueNode<V, K>, count: number) => {
   }
 };
 
-doRecurse(rootNode, 0);
+// doRecurse(rootNode, 0);
 // console.log(sq);
 
 
-// for (const v of vals) {
-//   console.log(sq.find(v).numOfSearches);
-// }
+for (const v of vals) {
+  console.log(sq.find(v).numOfSearches);
+}
 //
-console.log(sq.find(0.5).numOfSearches);
-console.log(sq.find(0.25).numOfSearches);
-console.log(sq.find(0.375).numOfSearches);
-console.log(sq.find(0.8125).numOfSearches);
-
-//TODO: fix this method
-console.log(sq.findNextBiggest(0.11).currentNode.val);
-
-console.log(sq.findNextLargest().val);
-
-console.log(
-  'zzz:',
-  sq.findNextLargest(sq.findNextLargest(sq.findNextLargest())).val
-);
-
-console.log(
-  'zzz:',
-  sq.findNextLargest(sq.findNextLargest(sq.findNextLargest(sq.findNextLargest()))).val
-);
+// console.log(sq.find(0.5).numOfSearches);
+// console.log(sq.find(0.25).numOfSearches);
+// console.log(sq.find(0.375).numOfSearches);
+// console.log(sq.find(0.8125).numOfSearches);
+//
+// //TODO: fix this method
+// console.log(sq.findNextBiggest(0.11).currentNode.val);
+//
+// console.log(sq.findNextLargest().val);
+//
+// console.log(
+//   'zzz:',
+//   sq.findNextLargest(sq.findNextLargest(sq.findNextLargest())).val
+// );
+//
+// console.log(
+//   'zzz:',
+//   sq.findNextLargest(sq.findNextLargest(sq.findNextLargest(sq.findNextLargest()))).val
+// );
 
 let count = 0;
+let smallest = sq.findSmallestValFromRoot();
+console.log(smallest.val);
 let next = sq.findNextLargest();
-while (true) {
+console.log(next.val);
+let prev = 0;
+while (next) {
   next = sq.findNextLargest(next);
-  console.log(count, next && next.val || 'fo');
-  if (count++ > 55) {
-    console.error('breaking?', count);
+  if (!next) {
+    continue;
+  }
+  console.log(count++, next && next.val);
+  // console.error('breaking?', count);
+  if (next.val <= prev) {
+    throw 'smaller!'
+  }
+  prev = next.val;
+  if (false) {
     break;
   }
 }
