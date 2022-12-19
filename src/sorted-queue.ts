@@ -210,9 +210,17 @@ class SortedQueue<V, K = any> {
 
   findSmallestVal() {
     let currentNode = this.rootNode;
+    if (!currentNode) {
+      throw new Error('missing root node?')
+    }
     while (currentNode.left) {
       currentNode = currentNode.left
     }
+
+    if (!currentNode) {
+      throw new Error('missing left node?')
+    }
+
     return currentNode;
   }
 
@@ -223,9 +231,9 @@ class SortedQueue<V, K = any> {
     return node;
   }
 
-  findNextLargest(node: SortedQueueNode<any, any> = this.findSmallestVal()) {
+  findNextLargestOld(node: SortedQueueNode<any, any> = this.findSmallestVal()) {
 
-    if (node === null) {
+    if (!node) {
       throw new Error('no current node.');
     }
 
@@ -233,38 +241,48 @@ class SortedQueue<V, K = any> {
       return this.findSmallestGivenVal(node.right);
     }
 
-    const parent = node.parent;
-
-    if (!parent) {
+    if (!node.parent) {
       return null;
     }
 
-    if (parent.left === node) {
-      if (parent.right) {
-        return this.findSmallestGivenVal(parent.right);
-      }
-      // if(!parent.parent){
-      //   // root node?
-      //   return parent;
-      // }
-      // return parent;
+    if (node.parent.right && node.parent.right !== node) {
+      return this.findSmallestGivenVal(node.parent.right);
     }
 
-    if (parent.right !== node) {
-      throw new Error('this should never happen.')
-    }
-
-    let n = node;
-    while (n.parent) {
-      n = n.parent;
-      if (n.parent) {
-        if (n.parent.right) {
-          return this.findSmallestGivenVal(n.parent.right);
-        }
+    while ((node = node.parent)) {
+      if (node.parent.right && node.parent.right !== node) {
+        return this.findSmallestGivenVal(node.parent.right);
       }
     }
 
-    return null;
+    return node;
+  }
+
+  findNextLargest(node: SortedQueueNode<any, any> = this.findSmallestVal()) : SortedQueueNode<any, any> {
+
+    if (!node) {
+      throw new Error('no current node.');
+    }
+
+    if (node.right) {
+      return this.findSmallestGivenVal(node.right);
+    }
+
+    while (node.parent) {
+
+      if(node.parent.right === node){
+        node = node.parent;
+        continue;
+      }
+
+      if (node.parent.right && node.parent.right !== node) {
+        return this.findSmallestGivenVal(node.parent.right);
+      }
+
+      node = node.parent;
+    }
+
+    return node.right;
   }
 
   iterator() {
@@ -643,10 +661,11 @@ console.log(
 
 let count = 0;
 let next = sq.findNextLargest();
-while (next) {
+while (true) {
   next = sq.findNextLargest(next);
-  console.log(next.val);
-  if (count++ > 5) {
+  console.log(count, next && next.val || 'fo');
+  if (count++ > 55) {
+    console.error('breaking?', count);
     break;
   }
 }
