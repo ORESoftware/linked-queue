@@ -420,7 +420,7 @@ class SortedQueue<V, K = any> {
       if (v <= 0) {
 
         if (!currentNode.left) {
-          // newNode.parent = currentNode;
+          newNode.parent = currentNode;
           currentNode.left = newNode;
           // newNode.leftOrRight = 'left';
           // this.doLeftRotation(currentNode);
@@ -435,7 +435,7 @@ class SortedQueue<V, K = any> {
 
 
         if (!currentNode.right) {
-          // newNode.parent = currentNode;
+          newNode.parent = currentNode;
           currentNode.right = newNode;
           // newNode.leftOrRight = 'right';
           // this.doRightRotation(currentNode);
@@ -452,7 +452,6 @@ class SortedQueue<V, K = any> {
 
   }
 
-
   compareNodesByBoolean(a: SortedQueueNode<V, K>, b: SortedQueueNode<V, K>) {
     return this.compareByBoolean(a.getValue(), b.getValue())
   }
@@ -463,19 +462,19 @@ const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 9 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
-    count > 9 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
+    count > 16 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 16 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
 console.time('foo')
-const rootNode3 = getNode(0.5, 0.25, 1);
-(rootNode3 as any).isRoot = true;
+const rootNode = getNode(0.5, 0.25, 1);
+(rootNode as any).isRoot = true;
 console.timeEnd('foo');
 // process.exit(0);
 
 
-const rootNode = new SortedQueueNode<number, number>(
+const rootNode2 = new SortedQueueNode<number, number>(
   {val: 0.5},
 
   new SortedQueueNode<number, number>(
@@ -548,7 +547,7 @@ const vals = [];
 
 console.time('start');
 
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 1000; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
