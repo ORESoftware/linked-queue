@@ -66,6 +66,8 @@ class SortedQueue<V, K = any> {
   compareByNum: SortedQueueOpts<V, K>['compareByNum'];
   compareByBoolean: SortedQueueOpts<V, K>['compareByBoolean'];
   map = new Map<K, V>();
+  head: SortedQueueNode<V, K> = null;
+  tail: SortedQueueNode<V, K> = null;
 
   constructor(rootNodeVal: SortedQueueNode<V, K>, opts: SortedQueueOpts<V, K>) {
     this.rootNode = rootNodeVal;
@@ -79,6 +81,83 @@ class SortedQueue<V, K = any> {
 
   removeByValue() {
     // this can remove in O(log_2(n))
+
+  }
+
+  remove(node: SortedQueueNode<V, K>) {
+    // this can remove in O(log_2(n))
+
+    const isTail = this.head === node;
+    const isHead = this.tail === node;
+    const parent = node.parent
+
+    if (!node.left && !node.right) {
+      if (!parent) {
+        this.head = null;
+        this.tail = null;
+        return;
+      }
+      if (parent.left === node) {
+        parent.left = null;
+        if (isHead) {
+          this.head = parent;
+        }
+      }
+
+      if (parent.right === node) {
+        parent.right = null;
+        if (isTail) {
+          this.tail = parent;
+        }
+      }
+      return;
+    }
+
+    if (!node.left) {
+
+      if (isTail) {
+        this.tail = node.left;
+      }
+
+      if (!parent) {
+        throw new Error('not ready for this.');
+      }
+
+      if (parent.left === node) {
+        parent.left = node.right;
+      } else if (parent.right === node) {
+        parent.right = node.right;
+      }
+
+      return;
+    }
+
+    if (!node.right) {
+
+      if (isHead) {
+        this.tail = node.left;
+      }
+
+      if (!parent) {
+        throw new Error('not ready for this.');
+      }
+
+      if (parent.left === node) {
+        parent.left = node.right;
+      } else if (parent.right === node) {
+        parent.right = node.right;
+      }
+
+      return;
+    }
+
+  }
+
+  peek() {
+    if (this.head) {
+      return this.head;
+    }
+    return this.head = this.findSmallestValFromRoot();
   }
 
   findNextBiggest(val: number) {
@@ -294,7 +373,7 @@ class SortedQueue<V, K = any> {
       if (n.parent.right && n.parent.right === n) {
         n = n.parent;
       } else {
-        if(n.parent.left !== n){
+        if (n.parent.left !== n) {
           throw new Error('oddd');
         }
         return n.parent;
@@ -422,6 +501,9 @@ class SortedQueue<V, K = any> {
         if (!currentNode.left) {
           newNode.parent = currentNode;
           currentNode.left = newNode;
+          if (this.head === currentNode) {
+            this.head = newNode;
+          }
           // newNode.leftOrRight = 'left';
           // this.doLeftRotation(currentNode);
           break;
@@ -437,6 +519,9 @@ class SortedQueue<V, K = any> {
         if (!currentNode.right) {
           newNode.parent = currentNode;
           currentNode.right = newNode;
+          if (this.tail === currentNode) {
+            this.tail = newNode;
+          }
           // newNode.leftOrRight = 'right';
           // this.doRightRotation(currentNode);
           break;
@@ -449,7 +534,6 @@ class SortedQueue<V, K = any> {
     }
 
     // console.log({numOfSearches});
-
   }
 
   compareNodesByBoolean(a: SortedQueueNode<V, K>, b: SortedQueueNode<V, K>) {
