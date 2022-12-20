@@ -194,11 +194,13 @@ class SortedQueue<V, K = any> {
     }
 
     if(!node.left.right){
+      throw 'foo111'
       node.left.right = node.right;
       return parent;
     }
 
     if(!node.right.left){
+      throw 'bar222'
       node.right.left = node.left;
       return parent;
     }
@@ -211,16 +213,12 @@ class SortedQueue<V, K = any> {
     }
 
 
-    if(!node.parent){
-      throw new Error('tbd');
-    }
-
     if(true){
 
       rightMost.parent.right = rightMost.left;
       rightMost.left = node.left;
       rightMost.right = node.right;
-      rightMost.parent = node.parent;
+      rightMost.parent = parent;
 
       if(!parent){
         this.rootNode = rightMost;
@@ -240,8 +238,6 @@ class SortedQueue<V, K = any> {
       // TODO: do leftMost
 
     }
-
-
 
 
     return parent;
@@ -642,8 +638,8 @@ const getNode = <V, K>(v: number, diff: number, count: number): SortedQueueNode<
   // console.log(v, count);
   return new SortedQueueNode<V, K>(
     {val: v as any, key: v as any},
-    count > 16 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
-    count > 16 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
+    count > 4 ? emptyNodeSymbol : getNode(v - diff, diff / 2, count + 1),
+    count > 4 ? emptyNodeSymbol : getNode(v + diff, diff / 2, count + 1),
   );
 }
 
@@ -727,7 +723,7 @@ const vals = [];
 
 console.time('start');
 
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 0; i++) {
   const r = Math.random();
   // console.time(String(r));
   sq.insert(r);
@@ -875,6 +871,15 @@ for (const v of vals) {
 //   'zzz:',
 //   sq.findNextLargest(sq.findNextLargest(sq.findNextLargest(sq.findNextLargest()))).val
 // );
+
+const x = sq.remove(sq.rootNode);
+console.log({x});
+console.log('new root-node val:', sq.rootNode.val);
+console.log('new root-node left val:', sq.rootNode.left.val);
+console.log('new root-node right val:', sq.rootNode.right.val);
+sq.logInOrder(sq.rootNode);
+
+throw 'bar'
 
 let count = 0;
 let smallest = sq.findSmallestValFromRoot();
