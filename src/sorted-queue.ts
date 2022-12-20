@@ -95,6 +95,19 @@ class SortedQueue<V, K = any> {
     const isHead = this.tail === node;
     const parent = node.parent;
 
+    const makeRet = () => {
+      node.parent = null;
+      node.right = null;
+      node.left = null;
+      return parent;
+    };
+
+    if(!parent){
+      if(this.rootNode !== node){
+        throw new Error('root node should be parent.')
+      }
+    }
+
     // TODO: redefine rootNode as needed
 
     if (!node.left && !node.right) {
@@ -134,9 +147,6 @@ class SortedQueue<V, K = any> {
       }
 
       if (!parent) {
-        if(this.rootNode !== node){
-          throw new Error('root node should be parent.')
-        }
         this.rootNode = node.right;
         return parent;
       }
@@ -145,13 +155,14 @@ class SortedQueue<V, K = any> {
         parent.left = node.right;
       } else if (parent.right === node) {
         parent.right = node.right;
+      } else {
+        throw new Error('neither left or right hmmm')
       }
 
       return parent;
     }
 
     if (!node.right) {
-
 
       if (isHead) {
         throw new Error('if left is defined, node should not be head.')
@@ -162,24 +173,74 @@ class SortedQueue<V, K = any> {
       }
 
       if (!parent) {
-        if(this.rootNode !== node){
-          throw new Error('root node should be parent.')
-        }
         this.rootNode = node.left;
+        return parent;
       }
 
       if (parent.left === node) {
-        parent.left = node.right;
+        parent.left = node.left;
       } else if (parent.right === node) {
-        parent.right = node.right;
+        parent.right = node.left;
+      } else {
+        throw new Error('neither left nor right hmmm.')
       }
 
       return parent;
     }
 
+
     if(!(node.left && node.right)){
       throw new Error('both left and right should be defined.')
     }
+
+    if(!node.left.right){
+      node.left.right = node.right;
+      return parent;
+    }
+
+    if(!node.right.left){
+      node.right.left = node.left;
+      return parent;
+    }
+
+    const rightMost = this.findLargestGivenVal(node.left);
+    const leftMost = this.findSmallestGivenVal(node.right);
+
+    if(!(rightMost && leftMost)){
+      throw new Error('both of these should be defined!')
+    }
+
+
+    if(!node.parent){
+      throw new Error('tbd');
+    }
+
+    if(true){
+
+      rightMost.parent.right = rightMost.left;
+      rightMost.left = node.left;
+      rightMost.right = node.right;
+      rightMost.parent = node.parent;
+
+      if(!parent){
+        this.rootNode = rightMost;
+        return parent;
+      }
+
+      if(parent.left === node){
+        parent.left = rightMost;
+      }
+
+      if(parent.right === node){
+        parent.right = rightMost;
+      }
+
+    } else {
+
+      // TODO: do leftMost
+
+    }
+
 
 
 
