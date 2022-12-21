@@ -100,9 +100,9 @@ class SortedQueue<V, K = any> {
     const parent = node.parent;
 
     const makeRet = () => {
-      node.parent = null;
-      node.right = null;
-      node.left = null;
+      // node.parent = null;
+      // node.right = null;
+      // node.left = null;
       return parent;
     };
 
@@ -214,11 +214,11 @@ class SortedQueue<V, K = any> {
       node.left.parent = parent; // ok if parent is null
       node.right.parent = node.left;
 
-      if (node.parent) {
-        if (node.parent.right === node) {
-          node.parent.right = node.left;
-        } else if (node.parent.left === node) {
-          node.parent.left = node.left;
+      if (parent) {
+        if (parent.right === node) {
+          parent.right = node.left;
+        } else if (parent.left === node) {
+          parent.left = node.left;
         } else {
           throw new Error('missing children.')
         }
@@ -232,11 +232,11 @@ class SortedQueue<V, K = any> {
       node.right.parent = parent; // ok if parent is null
       node.left.parent = node.right;
 
-      if (node.parent) {
-        if (node.parent.right === node) {
-          node.parent.right = node.right;
-        } else if (node.parent.right === node) {
-          node.parent.right = node.right;
+      if (parent) {
+        if (parent.right === node) {
+          parent.right = node.right;
+        } else if (parent.right === node) {
+          parent.right = node.right;
         } else {
           throw new Error('missing children.');
         }
@@ -964,10 +964,49 @@ sq.logInOrder(sq.rootNode);
 console.log('////////')
 
 let count = 0;
-let next = sq.findSmallestValFromRoot();
+let next1 = sq.findSmallestValFromRoot();
+const nxx = sq.findSmallestValFromRoot().parent.parent;
+const rm = nxx.left.right;
+console.log('VAL:', nxx.val);
+console.log('VAL parent:', nxx.parent.val);
+console.log('VAL left:', nxx.left.val);
+console.log('VAL left.right:', nxx.left.right.val);
+console.log('VAL right:', nxx.right.val);
+debugger;
+let nextX = sq.remove(nxx);
+
+if(rm.right !== nxx.right){
+  throw 'hmmm'
+}
+
+if(rm.left !== nxx.left){
+  throw 'hmmm'
+}
+
+if(rm.right !== nxx.right){
+  throw 'hmmm'
+}
+
+console.log('///////')
+console.log('VAL:', rm.val);
+console.log('VAL parent:', rm.parent.val);
+console.log('VAL parent.left:', rm.parent.left.val);
+console.log('VAL parent.right:', rm.parent.right.val);
+console.log('VAL parent.parent:', rm.parent.parent.val);
+console.log('VAL parent.parent.left:', rm.parent.parent.left.val);
+console.log('VAL parent.parent.right:', rm.parent.parent.right.val);
+console.log('VAL parent left:', rm.parent.left.val);
+console.log('VAL parent right:', rm.parent.right.val);
+console.log('VAL left:', rm.left.val);
+console.log('VAL left.left:', rm.left.left.val);
+console.log('VAL right:', rm.right.val);
+
 // console.log(smallest.val);
 // let next = sq.findNextLargest();
 // console.log(next.val);
+
+let next = sq.findSmallestValFromRoot();
+
 let prev = 0;
 while (next) {
   next = sq.findNextLargest(next);
