@@ -209,7 +209,7 @@ class SortedQueue<V, K = any> {
     }
 
     if (!node.left.right) {
-      throw 'boof right'
+      // throw 'boof right';
       node.left.right = node.right;
       node.left.parent = parent; // ok if parent is null
       if (node.parent) {
@@ -252,7 +252,15 @@ class SortedQueue<V, K = any> {
 
     if (true) {
 
+      if(rightMost.parent === node){
+        throw new Error('rightMost.parent cannot be node, here.')
+      }
+
       rightMost.parent.right = rightMost.left;
+
+      if(rightMost.right){
+        throw new Error('rightMost.right should not be defined.');
+      }
 
       if (rightMost.left) {
         rightMost.left.parent = rightMost.parent
@@ -260,6 +268,8 @@ class SortedQueue<V, K = any> {
 
       rightMost.left = node.left;
       rightMost.right = node.right;
+      node.right.parent = rightMost;
+      node.left.parent = rightMost;
       rightMost.parent = parent;
 
       if (!parent) {
@@ -272,6 +282,8 @@ class SortedQueue<V, K = any> {
       } else if (parent.right === node) {
         parent.right = rightMost;
       } else {
+        console.log(parent.val);
+        console.log(node.parent.val);
         throw new Error('this is unexpected.')
       }
 
@@ -927,7 +939,10 @@ sq.logInOrder(sq.rootNode);
 console.log('////////');
 
 const x = sq.remove(sq.rootNode);
+console.log('1111:',sq.rootNode.val);
 const x2 = sq.remove(sq.rootNode);
+console.log('2222:',sq.rootNode.val);
+const x6 = sq.remove(sq.rootNode.right);
 const x3 = sq.remove(sq.rootNode.right?.left);
 const x4 = sq.remove(sq.rootNode.left?.right);
 console.log({x});
