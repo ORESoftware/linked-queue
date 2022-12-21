@@ -84,10 +84,14 @@ class SortedQueue<V, K = any> {
 
   }
 
-  remove(node: SortedQueueNode<V, K>) : SortedQueueNode<V, K>{
+  remove(node: SortedQueueNode<V, K>): SortedQueueNode<V, K> {
     // this can remove in O(log_2(n))
 
-    if(!(node && 'val' in node)){
+    if (!node) {
+      return null;
+    }
+
+    if (!(node && 'val' in node)) {
       throw new Error('node is not defined, or wrong type.')
     }
 
@@ -102,8 +106,8 @@ class SortedQueue<V, K = any> {
       return parent;
     };
 
-    if(!parent){
-      if(this.rootNode !== node){
+    if (!parent) {
+      if (this.rootNode !== node) {
         throw new Error('root node should be parent.')
       }
     }
@@ -112,12 +116,14 @@ class SortedQueue<V, K = any> {
 
     if (!node.left && !node.right) {
 
+      throw 'neither!'
+
       if (!parent) {
         // root node...
         this.head = null;
         this.tail = null;
         this.rootNode = null;
-        return parent;
+        return makeRet();
       }
 
       if (parent.left === node) {
@@ -133,18 +139,23 @@ class SortedQueue<V, K = any> {
           this.tail = parent;
         }
       }
-      return parent;
+      return makeRet();
     }
 
     if (!node.left) {
+
+      throw 'left'
 
       if (isTail) {
         throw new Error('should not be tail if node.right is defined.');
       }
 
-      if(isHead){
+      if (isHead) {
         this.head = node.right;
       }
+
+      // assign even if parent is null
+      node.right.parent = parent;
 
       if (!parent) {
         this.rootNode = node.right;
@@ -159,18 +170,23 @@ class SortedQueue<V, K = any> {
         throw new Error('neither left or right hmmm')
       }
 
-      return parent;
+      return makeRet();
     }
 
     if (!node.right) {
+
+      throw 'right'
 
       if (isHead) {
         throw new Error('if left is defined, node should not be head.')
       }
 
-      if(isTail){
+      if (isTail) {
         this.tail = node.left;
       }
+
+      // assign even if parent is null
+      node.left.parent = parent;
 
       if (!parent) {
         this.rootNode = node.left;
@@ -185,52 +201,78 @@ class SortedQueue<V, K = any> {
         throw new Error('neither left nor right hmmm.')
       }
 
-      return parent;
+      return makeRet();
     }
 
-
-    if(!(node.left && node.right)){
+    if (!(node.left && node.right)) {
       throw new Error('both left and right should be defined.')
     }
 
-    if(!node.left.right){
-      throw 'foo111'
+    if (!node.left.right) {
+      throw 'boof right'
       node.left.right = node.right;
-      return parent;
+      node.left.parent = parent; // ok if parent is null
+      if (node.parent) {
+        if (node.parent.right === node) {
+          node.parent.right = node.left;
+        } else if (node.parent.left === node) {
+          node.parent.left = node.left;
+        } else {
+          throw new Error('missing children.')
+        }
+      }
+      return makeRet();
     }
 
-    if(!node.right.left){
-      throw 'bar222'
+    if (!node.right.left) {
+      // throw 'boof left'
       node.right.left = node.left;
-      return parent;
+      node.right.parent = parent; // ok if parent is null
+
+      if (node.parent) {
+        if (node.parent.right === node) {
+          node.parent.right = node.right;
+        } else if (node.parent.right === node) {
+          node.parent.right = node.right;
+        } else {
+          throw new Error('missing children.');
+        }
+      }
+
+      return makeRet();
     }
 
     const rightMost = this.findLargestGivenVal(node.left);
     const leftMost = this.findSmallestGivenVal(node.right);
 
-    if(!(rightMost && leftMost)){
+    if (!(rightMost && leftMost)) {
       throw new Error('both of these should be defined!')
     }
 
 
-    if(true){
+    if (true) {
 
       rightMost.parent.right = rightMost.left;
+
+      if (rightMost.left) {
+        rightMost.left.parent = rightMost.parent
+      }
+
       rightMost.left = node.left;
       rightMost.right = node.right;
       rightMost.parent = parent;
 
-      if(!parent){
+      if (!parent) {
         this.rootNode = rightMost;
-        return parent;
+        return makeRet();
       }
 
-      if(parent.left === node){
+      if (parent.left === node) {
         parent.left = rightMost;
-      }
-
-      if(parent.right === node){
+      } else if (parent.right === node) {
         parent.right = rightMost;
+      } else {
+        throw new Error('this is unexpected.')
       }
 
     } else {
@@ -240,7 +282,7 @@ class SortedQueue<V, K = any> {
     }
 
 
-    return parent;
+    return makeRet();
 
 
   }
@@ -326,20 +368,28 @@ class SortedQueue<V, K = any> {
 
   }
 
-  logInOrder(node: SortedQueueNode<any, any>) {
+  logInOrder(node: SortedQueueNode<any, any>, count = {val: 0}) {
 
     if (node === null) {
       return;
     }
 
     if (node.left) {
-      this.logInOrder(node.left);
+      if (node.left.parent !== node) {
+        node.left.parent = node;
+        // throw new Error('this is wrong / left.');
+      }
+      this.logInOrder(node.left, count);
     }
 
-    console.log(node.val);
+    console.log(count.val++, node.val);
 
     if (node.right) {
-      this.logInOrder(node.right);
+      if (node.right.parent !== node) {
+        node.right.parent = node;
+        // throw new Error('this is wrong / right.');
+      }
+      this.logInOrder(node.right, count);
     }
   }
 
@@ -379,7 +429,7 @@ class SortedQueue<V, K = any> {
 
   }
 
-  findSmallestValFromRoot() {
+  findSmallestValFromRoot(): SortedQueueNode<V, K> {
     let currentNode = this.rootNode;
 
     while (currentNode.left) {
@@ -465,9 +515,9 @@ class SortedQueue<V, K = any> {
       if (n.parent.right && n.parent.right === n) {
         n = n.parent;
       } else {
-        if (n.parent.left !== n) {
-          throw new Error('oddd');
-        }
+        // if (n.parent.left !== n) {
+        //   throw new Error('oddd');
+        // }
         return n.parent;
       }
 
@@ -872,20 +922,34 @@ for (const v of vals) {
 //   sq.findNextLargest(sq.findNextLargest(sq.findNextLargest(sq.findNextLargest()))).val
 // );
 
+console.log('///////');
+sq.logInOrder(sq.rootNode);
+console.log('////////');
+
 const x = sq.remove(sq.rootNode);
+const x2 = sq.remove(sq.rootNode);
+const x3 = sq.remove(sq.rootNode.right?.left);
+const x4 = sq.remove(sq.rootNode.left?.right);
 console.log({x});
 console.log('new root-node val:', sq.rootNode.val);
-console.log('new root-node left val:', sq.rootNode.left.val);
-console.log('new root-node right val:', sq.rootNode.right.val);
-sq.logInOrder(sq.rootNode);
 
-throw 'bar'
+if (sq.rootNode.left) {
+  console.log('new root-node left val:', sq.rootNode.left.val);
+}
+
+if (sq.rootNode.right) {
+  console.log('new root-node right val:', sq.rootNode.right.val);
+}
+
+console.log('///////')
+sq.logInOrder(sq.rootNode);
+console.log('////////')
 
 let count = 0;
-let smallest = sq.findSmallestValFromRoot();
-console.log(smallest.val);
-let next = sq.findNextLargest();
-console.log(next.val);
+let next = sq.findSmallestValFromRoot();
+// console.log(smallest.val);
+// let next = sq.findNextLargest();
+// console.log(next.val);
 let prev = 0;
 while (next) {
   next = sq.findNextLargest(next);
@@ -897,7 +961,7 @@ while (next) {
   if (next.val <= prev) {
     throw 'smaller!'
   }
-  prev = next.val;
+  prev = <number>next.val;
   if (false) {
     break;
   }
