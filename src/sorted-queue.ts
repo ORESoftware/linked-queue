@@ -212,6 +212,8 @@ class SortedQueue<V, K = any> {
       // throw 'boof right';
       node.left.right = node.right;
       node.left.parent = parent; // ok if parent is null
+      node.right.parent = node.left;
+
       if (node.parent) {
         if (node.parent.right === node) {
           node.parent.right = node.left;
@@ -228,6 +230,7 @@ class SortedQueue<V, K = any> {
       // throw 'boof left'
       node.right.left = node.left;
       node.right.parent = parent; // ok if parent is null
+      node.left.parent = node.right;
 
       if (node.parent) {
         if (node.parent.right === node) {
