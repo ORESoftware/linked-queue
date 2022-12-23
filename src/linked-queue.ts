@@ -1,6 +1,6 @@
 'use strict';
 
-import util = require('util');
+import * as util from 'util';
 import chalk from "chalk";
 
 export const r2gSmokeTest = function () {
@@ -25,7 +25,6 @@ const IsVoidVal = Symbol('null result');
 export const IsVoid = {
   check: (v: any) => v === IsVoidVal
 }
-
 
 export class LinkedQueue<V, K = any> {
 
@@ -117,16 +116,16 @@ export class LinkedQueue<V, K = any> {
 
         return {
 
-          next(): IteratorResult<[K, V], any> {
+          next(): IteratorResult<[K, V]> {
 
-            const r: { done: boolean, value: [K, V] } = v ? {
+            const r = v ? {
               value: [v.key, v.value],
               // empty array [] means we are done,
               // since we return [] instead of null as a pattern here
               done: false
             } : {
               done: true,
-              value: null
+              value: [IsVoidVal] as any
             }
 
             if (v) {
