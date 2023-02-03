@@ -156,7 +156,7 @@ class IterableWMapFilter<T> {
     return ret;
   }
 
-  next(): { done: boolean, value: any } {
+  private next(): { done: boolean, value: any } {
 
     if (this.vals.length < 1) {
       return {done: true, value: null};
