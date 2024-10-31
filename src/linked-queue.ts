@@ -141,6 +141,37 @@ export class LinkedQueue<V, K = any> {
     }
   }
 
+  // Example async processing function for each item (replace with your own logic)
+  private async processItem(key: K, value: V): Promise<V> {
+    // Simulate an async task, e.g., fetching data or processing the item
+    return new Promise((resolve) => {
+      // Replace this with your actual async task
+      setTimeout(() => {
+        console.log(`Processing item with key: ${key}, value: ${value}`);
+        resolve(value); // Return the value, processed if needed
+      }, 100);
+    });
+  }
+
+  async *asyncIterator(): AsyncGenerator<[K, V], void, unknown> {
+    let v = this.head;
+    while (v) {
+      const processedValue = await this.processItem(v.key, v.value); // Async processing per item
+      yield [v.key, processedValue];
+      v = v.after;
+    }
+  }
+
+  // Async iterator for reverse traversal
+  async *asyncReverseIterator(): AsyncGenerator<[K, V], void, unknown> {
+    let v = this.tail;
+    while (v) {
+      const processedValue = await this.processItem(v.key, v.value); // Async processing per item
+      yield [v.key, processedValue];
+      v = v.before;
+    }
+  }
+
   dequeueIterator() {
 
     const self = this;
