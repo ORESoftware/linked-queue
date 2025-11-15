@@ -2,7 +2,7 @@
 
 const assert = require('assert');
 const uuid = require('uuid/v4');
-const {LinkedQueue} = require('../../dist/linked-queue');
+const {LinkedQueue, IsVoid} = require('../../dist/linked-queue');
 const q = new LinkedQueue();
 
 const testHead = function () {
@@ -16,8 +16,12 @@ const testHead = function () {
   }
 
   let peek = q.peek();
-  if (before !== peek) {
-    console.error(before.key, peek && peek.key, q.getOrderedList().map(v => v.key));
+  if (!before && !IsVoid.check(peek[0])) {
+    console.error('before is null but peek is not void', peek, q.getOrderedList().map(v => v.key));
+    throw 'fml-1';
+  }
+  if (before && (IsVoid.check(peek[0]) || before.key !== peek[0])) {
+    console.error(before.key, peek && peek[0], q.getOrderedList().map(v => v.key));
     throw 'fml-1';
   }
 
@@ -48,19 +52,19 @@ const fns = {
     q.clear();
   },
   '2'() {
-    q.addToFront({});
+    q.addToFront(uuid(), {});
   },
   '3'() {
-    q.enq({});
+    q.enq(uuid(), {});
   },
   '4'() {
-    q.enq({});
+    q.enq(uuid(), {});
   },
   '5'() {
     q.enq(uuid(), {});
   },
   '6'() {
-    q.enqueue({});
+    q.enqueue(uuid(), {});
   },
   '7'() {
     q.push(uuid(), {});
@@ -69,7 +73,7 @@ const fns = {
     q.addToFront(uuid(), {});
   },
   '9'() {
-    q.addToFront({});
+    q.addToFront(uuid(), {});
   },
   '10'() {
     q.deq();

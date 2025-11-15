@@ -431,10 +431,14 @@ export class LinkedQueue<V, K = any> {
 
   }
 
-  enq<K, V>(...args: Array<[K, V]>): void {
-    for (let v of args) {
-      this.enqueue(v[0], v[1])
+  enq(k?: any, val?: any): void {
+    if (arguments.length === 0) {
+      throw new Error(`Please pass an argument to '${this.enq.name}()'.`);
     }
+    if (arguments.length === 1) {
+      val = k;
+    }
+    this.enqueue(k, val);
   }
 
   enqueue(k: any, val?: any): void {

@@ -21,22 +21,40 @@ function createNotifyObj(uuid, pid = 1234, ttl = 5000) {
     };
 }
 
-describe('LinkedQueue - Live-Mutex Usage Tests', () => {
+function runTests() {
+    let queue;
+    let testCount = 0;
+    let passCount = 0;
+    let failCount = 0;
 
-    describe('Basic Operations - as used in broker.ts', () => {
-        let queue;
+    function test(name, fn) {
+        testCount++;
+        try {
+            fn();
+            passCount++;
+            console.log(`✓ ${name}`);
+        } catch (err) {
+            failCount++;
+            console.error(`✗ ${name}: ${err.message}`);
+            throw err;
+        }
+    }
 
-        beforeEach(() => {
-            queue = new LinkedQueue();
-        });
+    function beforeEach(fn) {
+        queue = new LinkedQueue();
+        fn();
+    }
 
-        it('should create an empty queue', () => {
+    console.log('\n=== Basic Operations - as used in broker.ts ===\n');
+
+    beforeEach(() => {
+        test('should create an empty queue', () => {
             assert.strictEqual(queue.length, 0);
             assert.strictEqual(queue.getLength(), 0);
             assert.strictEqual(queue.size, 0);
         });
 
-        it('should enqueue items (push pattern)', () => {
+        test('should enqueue items (push pattern)', () => {
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
 
@@ -49,7 +67,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.contains('uuid2'), true);
         });
 
-        it('should add items to front (unshift pattern)', () => {
+        test('should add items to front (unshift pattern)', () => {
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
 
@@ -62,7 +80,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(first[0], 'uuid2'); // Should be first
         });
 
-        it('should dequeue items from front', () => {
+        test('should dequeue items from front', () => {
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
 
@@ -81,7 +99,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.length, 0);
         });
 
-        it('should dequeue multiple items (deq pattern from broker.ts line 1222)', () => {
+        test('should dequeue multiple items (deq pattern from broker.ts line 1222)', () => {
             const objs = [];
             for (let i = 0; i < 10; i++) {
                 const obj = createNotifyObj(`uuid${i}`, 1000 + i);
@@ -102,7 +120,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             }
         });
 
-        it('should remove items by key (pattern from broker.ts line 389, 766)', () => {
+        test('should remove items by key (pattern from broker.ts line 389, 766)', () => {
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
 
@@ -117,7 +135,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.contains('uuid2'), true);
         });
 
-        it('should get items by key (pattern from broker.ts line 1371)', () => {
+        test('should get items by key (pattern from broker.ts line 1371)', () => {
             const obj1 = createNotifyObj('uuid1');
 
             queue.enqueue('uuid1', obj1);
@@ -132,7 +150,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.ok(IsVoid.check(notFound[0]));
         });
 
-        it('should check if key exists (contains pattern from broker.ts line 1216)', () => {
+        test('should check if key exists (contains pattern from broker.ts line 1216)', () => {
             const obj1 = createNotifyObj('uuid1');
 
             assert.strictEqual(queue.contains('uuid1'), false);
@@ -141,7 +159,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.contains('nonexistent'), false);
         });
 
-        it('should handle empty queue operations', () => {
+        test('should handle empty queue operations', () => {
             const dequeued = queue.dequeue();
             assert.ok(IsVoid.check(dequeued[0]));
 
@@ -156,14 +174,10 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
         });
     });
 
-    describe('Live-Mutex Specific Patterns', () => {
-        let queue;
+    console.log('\n=== Live-Mutex Specific Patterns ===\n');
 
-        beforeEach(() => {
-            queue = new LinkedQueue();
-        });
-
-        it('should simulate ensureNewLockHolder pattern - dequeue until valid (broker.ts line 1103)', () => {
+    beforeEach(() => {
+        test('should simulate ensureNewLockHolder pattern - dequeue until valid (broker.ts line 1103)', () => {
             // Pattern from broker.ts line 1103
             const invalidObj = {
                 ws: {writable: false}, // Invalid socket
@@ -202,7 +216,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.length, 0); // Both dequeued
         });
 
-        it('should simulate lock pattern - push, unshift, remove (broker.ts lines 1365-1379)', () => {
+        test('should simulate lock pattern - push, unshift, remove (broker.ts lines 1365-1379)', () => {
             // Pattern from broker.ts lines 1365-1379
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
@@ -229,7 +243,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(first[0], 'uuid1');
         });
 
-        it('should simulate deq pattern for re-election (broker.ts line 1222)', () => {
+        test('should simulate deq pattern for re-election (broker.ts line 1222)', () => {
             // Pattern from broker.ts line 1222
             const objs = [];
             for (let i = 0; i < 10; i++) {
@@ -248,7 +262,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.length, 5);
         });
 
-        it('should handle length property and getLength method (broker.ts uses both)', () => {
+        test('should handle length property and getLength method (broker.ts uses both)', () => {
             // Pattern from broker.ts - uses both
             const obj1 = createNotifyObj('uuid1');
 
@@ -264,7 +278,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.length, queue.getLength());
         });
 
-        it('should handle cleanup pattern - remove by uuid (broker.ts line 389, 766)', () => {
+        test('should handle cleanup pattern - remove by uuid (broker.ts line 389, 766)', () => {
             // Pattern from broker.ts line 389, 766
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid2');
@@ -280,14 +294,10 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
         });
     });
 
-    describe('Edge Cases and Error Handling', () => {
-        let queue;
+    console.log('\n=== Edge Cases and Error Handling ===\n');
 
-        beforeEach(() => {
-            queue = new LinkedQueue();
-        });
-
-        it('should handle duplicate key attempts', () => {
+    beforeEach(() => {
+        test('should handle duplicate key attempts', () => {
             const obj1 = createNotifyObj('uuid1');
             const obj2 = createNotifyObj('uuid1'); // Same uuid
 
@@ -299,7 +309,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             }, Error);
         });
 
-        it('should handle deq with more items than available', () => {
+        test('should handle deq with more items than available', () => {
             const obj1 = createNotifyObj('uuid1');
 
             queue.enqueue('uuid1', obj1);
@@ -310,7 +320,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             assert.strictEqual(queue.length, 0);
         });
 
-        it('should handle deq with zero or negative numbers', () => {
+        test('should handle deq with zero or negative numbers', () => {
             assert.throws(() => {
                 queue.deq(0);
             }, Error);
@@ -320,7 +330,7 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
             }, Error);
         });
 
-        it('should maintain order after multiple operations', () => {
+        test('should maintain order after multiple operations', () => {
             const objs = [];
             for (let i = 0; i < 5; i++) {
                 const obj = createNotifyObj(`uuid${i}`, 1000 + i);
@@ -343,101 +353,110 @@ describe('LinkedQueue - Live-Mutex Usage Tests', () => {
         });
     });
 
-    describe('Performance and Stress Tests', () => {
-        it('should handle large number of operations', () => {
-            const queue = new LinkedQueue();
-            const count = 10000;
+    console.log('\n=== Performance and Stress Tests ===\n');
 
-            // Add many items
-            for (let i = 0; i < count; i++) {
-                const obj = createNotifyObj(`uuid${i}`, 1000 + i);
-                queue.enqueue(`uuid${i}`, obj);
+    test('should handle large number of operations', () => {
+        const queue = new LinkedQueue();
+        const count = 10000;
+
+        // Add many items
+        for (let i = 0; i < count; i++) {
+            const obj = createNotifyObj(`uuid${i}`, 1000 + i);
+            queue.enqueue(`uuid${i}`, obj);
+        }
+
+        assert.strictEqual(queue.length, count);
+
+        // Remove some
+        for (let i = 0; i < count / 2; i++) {
+            queue.remove(`uuid${i}`);
+        }
+
+        assert.strictEqual(queue.length, count / 2);
+
+        // Dequeue rest
+        const remaining = queue.deq(count);
+        assert.strictEqual(remaining.length, count / 2);
+        assert.strictEqual(queue.length, 0);
+    });
+
+    test('should handle rapid add/remove cycles', () => {
+        const queue = new LinkedQueue();
+
+        for (let cycle = 0; cycle < 100; cycle++) {
+            // Add items
+            for (let i = 0; i < 10; i++) {
+                const obj = createNotifyObj(`uuid${cycle}_${i}`, cycle * 10 + i);
+                queue.enqueue(`uuid${cycle}_${i}`, obj);
             }
-
-            assert.strictEqual(queue.length, count);
 
             // Remove some
-            for (let i = 0; i < count / 2; i++) {
-                queue.remove(`uuid${i}`);
+            for (let i = 0; i < 5; i++) {
+                queue.remove(`uuid${cycle}_${i}`);
             }
 
-            assert.strictEqual(queue.length, count / 2);
+            // Dequeue some
+            queue.deq(3);
 
-            // Dequeue rest
-            const remaining = queue.deq(count);
-            assert.strictEqual(remaining.length, count / 2);
-            assert.strictEqual(queue.length, 0);
-        });
-
-        it('should handle rapid add/remove cycles', () => {
-            const queue = new LinkedQueue();
-
-            for (let cycle = 0; cycle < 100; cycle++) {
-                // Add items
-                for (let i = 0; i < 10; i++) {
-                    const obj = createNotifyObj(`uuid${cycle}_${i}`, cycle * 10 + i);
-                    queue.enqueue(`uuid${cycle}_${i}`, obj);
-                }
-
-                // Remove some
-                for (let i = 0; i < 5; i++) {
-                    queue.remove(`uuid${cycle}_${i}`);
-                }
-
-                // Dequeue some
-                queue.deq(3);
-
-                // Verify consistency
-                assert.ok(queue.length >= 0);
-                assert.strictEqual(queue.length, queue.getLength());
-            }
-        });
+            // Verify consistency
+            assert.ok(queue.length >= 0);
+            assert.strictEqual(queue.length, queue.getLength());
+        }
     });
 
-    describe('Iterator Tests', () => {
-        it('should iterate over queue items', () => {
-            const queue = new LinkedQueue();
-            const objs = [];
-            for (let i = 0; i < 5; i++) {
-                const obj = createNotifyObj(`uuid${i}`, 1000 + i);
-                objs.push(obj);
-                queue.enqueue(`uuid${i}`, obj);
-            }
+    console.log('\n=== Iterator Tests ===\n');
 
-            const items = [];
-            for (const [key, value] of queue) {
-                items.push([key, value]);
-            }
+    test('should iterate over queue items', () => {
+        const queue = new LinkedQueue();
+        const objs = [];
+        for (let i = 0; i < 5; i++) {
+            const obj = createNotifyObj(`uuid${i}`, 1000 + i);
+            objs.push(obj);
+            queue.enqueue(`uuid${i}`, obj);
+        }
 
-            assert.strictEqual(items.length, 5);
-            assert.strictEqual(items[0][0], 'uuid0');
-            assert.strictEqual(items[4][0], 'uuid4');
-        });
+        const items = [];
+        for (const [key, value] of queue) {
+            items.push([key, value]);
+        }
 
-        it('should use dequeueIterator', () => {
-            const queue = new LinkedQueue();
-            const objs = [];
-            for (let i = 0; i < 5; i++) {
-                const obj = createNotifyObj(`uuid${i}`, 1000 + i);
-                objs.push(obj);
-                queue.enqueue(`uuid${i}`, obj);
-            }
-
-            const items = [];
-            for (const [key, value] of queue.dequeueIterator()) {
-                items.push([key, value]);
-            }
-
-            assert.strictEqual(items.length, 5);
-            assert.strictEqual(queue.length, 0); // All dequeued
-        });
+        assert.strictEqual(items.length, 5);
+        assert.strictEqual(items[0][0], 'uuid0');
+        assert.strictEqual(items[4][0], 'uuid4');
     });
-});
+
+    test('should use dequeueIterator', () => {
+        const queue = new LinkedQueue();
+        const objs = [];
+        for (let i = 0; i < 5; i++) {
+            const obj = createNotifyObj(`uuid${i}`, 1000 + i);
+            objs.push(obj);
+            queue.enqueue(`uuid${i}`, obj);
+        }
+
+        const items = [];
+        for (const [key, value] of queue.dequeueIterator()) {
+            items.push([key, value]);
+        }
+
+        assert.strictEqual(items.length, 5);
+        assert.strictEqual(queue.length, 0); // All dequeued
+    });
+
+    console.log(`\n=== Test Results: ${passCount}/${testCount} passed ===\n`);
+    
+    if (failCount > 0) {
+        process.exit(1);
+    }
+}
 
 // Run tests if executed directly
 if (require.main === module) {
-    console.log('Running improved LinkedQueue tests for live-mutex usage patterns...');
-    console.log('Note: This test file should be run with a test runner like mocha or jest');
-    console.log('Or run: node test/src/improved-live-mutex.test.js');
+    try {
+        runTests();
+        console.log('All tests passed!');
+    } catch (err) {
+        console.error('Test suite failed:', err);
+        process.exit(1);
+    }
 }
-
