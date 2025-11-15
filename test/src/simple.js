@@ -1,5 +1,5 @@
 
-const {LinkedQueue} = require('@oresoftware/linked-queue');
+const {LinkedQueue} = require('../../dist/linked-queue');
 
 const l2 = new LinkedQueue();
 

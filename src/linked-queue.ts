@@ -364,6 +364,30 @@ export class LinkedQueue<V, K = any> {
     this.lookup.clear();
   }
 
+  // Array-like method aliases for convenience
+  push(k?: any, val?: any): void {
+    if (arguments.length === 0) {
+      throw new Error(`Please pass an argument to '${this.push.name}()'.`);
+    }
+    this.enqueue(k, val);
+  }
+
+  shift(): [K, V] | [typeof IsVoidVal] {
+    return this.dequeue();
+  }
+
+  unshift(k: any, obj?: V): void {
+    this.addToFront(k, obj);
+  }
+
+  pop(): [K, V] | [typeof IsVoidVal] {
+    return this.removeLast();
+  }
+
+  clear(): void {
+    this.removeAll();
+  }
+
   addToFront(k: K, obj?: V): void {
 
     if (arguments.length < 1) {
@@ -489,8 +513,12 @@ export class LinkedQueue<V, K = any> {
     return this;
   }
 
-  deq(n: number) {
-    //TODO update this to return the right sig
+  deq(n?: number): [K, V] | [typeof IsVoidVal] | LinkedQueueValue<V,K>[] {
+    // If no argument, behave like dequeue()
+    if (arguments.length === 0 || n === undefined) {
+      return this.dequeue();
+    }
+    // If argument provided, dequeue n items
     if (!Number.isInteger(n)) {
       throw new Error('Must provide an integer as an argument to deq().');
     }

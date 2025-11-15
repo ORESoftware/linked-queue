@@ -1,4 +1,4 @@
-const {LinkedQueue} = require('@oresoftware/linked-queue');
+const {LinkedQueue} = require('../../dist/linked-queue');
 
 const assert = require('assert');
 const q = new LinkedQueue();
