@@ -373,7 +373,11 @@ export class LinkedQueue<V, K = any> {
     if (arguments.length === 0) {
       throw new Error(`Please pass an argument to '${this.push.name}()'.`);
     }
-    this.enqueue(k, val);
+    if (arguments.length === 1) {
+      this.enqueue(k, k);
+    } else {
+      this.enqueue(k, val);
+    }
   }
 
   addToFront(k: K, obj?: V): void {

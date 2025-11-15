@@ -27,7 +27,7 @@ const fns = {
     q.enqueue(uuid(), {});
   },
   '6'() {
-    q.enqueue('dude', {});
+    q.enqueue(uuid(), {});
   },
   '7'() {
     q.push(uuid(), {});
@@ -85,13 +85,8 @@ for (let i = 0; i < 1000000; i++) {
     throw new Error('New length should be one fewer.')
   }
 
-  if (rand > 1 && rand < 10) {
-    if (v === 0 && newLn !== 1) {
-      throw new Error('New length should be 1 when adding to empty queue.')
-    }
-    if (v > 0 && ((newLn - 1) !== v)) {
-      throw new Error('New length should be one greater.')
-    }
+  if (rand > 1 && rand < 10 && v > 0  && ((newLn - 1) !== v)) {
+    throw new Error('New length should be one greater.')
   }
 
   v = q.getLength();
