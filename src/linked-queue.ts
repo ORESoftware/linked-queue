@@ -364,6 +364,10 @@ export class LinkedQueue<V, K = any> {
     this.lookup.clear();
   }
 
+  clear() {
+    this.removeAll();
+  }
+
   addToFront(k: K, obj?: V): void {
 
     if (arguments.length < 1) {
@@ -527,6 +531,22 @@ export class LinkedQueue<V, K = any> {
       h.value
     ];
 
+  }
+
+  shift(): [K, V] | [typeof IsVoidVal] {
+    return this.dequeue();
+  }
+
+  unshift(k: K, obj?: V): void {
+    if (arguments.length === 1) {
+      this.addToFront(k, k as any);
+    } else {
+      this.addToFront(k, obj);
+    }
+  }
+
+  pop(): ([K, V] | [typeof IsVoidVal]) {
+    return this.removeLast();
   }
 
   removeLast(): ([K, V] | [typeof IsVoidVal]) {

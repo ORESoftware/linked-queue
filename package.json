@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/node": "^12.6.1",
+    "typescript": "^5.9.3",
     "uuid": "^3.2.1"
   },
   "r2g": {

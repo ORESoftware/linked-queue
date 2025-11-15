@@ -16,8 +16,12 @@ const testHead = function () {
   }
 
   let peek = q.peek();
-  if (before !== peek) {
-    console.error(before.key, peek && peek.key, q.getOrderedList().map(v => v.key));
+  if (!before && !q.head) {
+    // Empty queue
+    return;
+  }
+  if (!before || !peek || before.key !== peek[0]) {
+    console.error('before:', before && before.key, 'peek:', peek && peek[0], 'ordered:', q.getOrderedList().map(v => v[0]));
     throw 'fml-1';
   }
 
@@ -33,8 +37,12 @@ const testTail = function () {
     v = v.after;
   }
 
-  if (after !== q.tail) {
-    console.error(after.key, q.tail && q.tail.key, q.getOrderedList().map(v => v.key));
+  if (!after && !q.tail) {
+    // Empty queue
+    return;
+  }
+  if (!after || !q.tail || after.key !== q.tail.key) {
+    console.error('after:', after && after.key, 'tail:', q.tail && q.tail.key, 'ordered:', q.getOrderedList().map(v => v[0]));
     throw new Error('fml 2');
   }
 
@@ -48,19 +56,19 @@ const fns = {
     q.clear();
   },
   '2'() {
-    q.addToFront({});
+    q.addToFront(uuid(), {});
   },
   '3'() {
-    q.enq({});
+    q.enq(uuid(), {});
   },
   '4'() {
-    q.enq({});
+    q.enq(uuid(), {});
   },
   '5'() {
     q.enq(uuid(), {});
   },
   '6'() {
-    q.enqueue({});
+    q.enqueue(uuid(), {});
   },
   '7'() {
     q.push(uuid(), {});
@@ -69,10 +77,10 @@ const fns = {
     q.addToFront(uuid(), {});
   },
   '9'() {
-    q.addToFront({});
+    q.addToFront(uuid(), {});
   },
   '10'() {
-    q.deq();
+    q.deq(1);
   },
   '11'() {
     q.dequeue();
