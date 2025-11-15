@@ -1,4 +1,4 @@
-const {LinkedQueue} = require('@oresoftware/linked-queue');
+const {LinkedQueue} = require('../../dist/linked-queue');
 
 const assert = require('assert');
 const q = new LinkedQueue();
@@ -95,8 +95,13 @@ for (let i = 0; i < 1000000; i++) {
     throw new Error('New length should be one fewer.')
   }
 
-  if (rand > 1 && rand < 10 && v > 0 && ((newLn - 1) !== v)) {
-    throw new Error('New length should be one greater.')
+  if (rand > 1 && rand < 10) {
+    if (v === 0 && newLn !== 1) {
+      throw new Error('New length should be 1 when adding to empty queue.')
+    }
+    if (v > 0 && ((newLn - 1) !== v)) {
+      throw new Error('New length should be one greater.')
+    }
   }
 
   if(rand === 13 && res && v > 0 && ((newLn + 1) !== v)){
