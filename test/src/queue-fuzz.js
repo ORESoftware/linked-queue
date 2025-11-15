@@ -39,7 +39,7 @@ const fns = {
     q.addToFront(uuid(), {});
   },
   '10'() {
-    q.deq();
+    q.deq(1);
   },
   '11'() {
     q.dequeue();

@@ -364,28 +364,20 @@ export class LinkedQueue<V, K = any> {
     this.lookup.clear();
   }
 
+  clear(): void {
+    this.removeAll();
+  }
+
   // Array-like method aliases for convenience
   push(k?: any, val?: any): void {
     if (arguments.length === 0) {
       throw new Error(`Please pass an argument to '${this.push.name}()'.`);
     }
-    this.enqueue(k, val);
-  }
-
-  shift(): [K, V] | [typeof IsVoidVal] {
-    return this.dequeue();
-  }
-
-  unshift(k: any, obj?: V): void {
-    this.addToFront(k, obj);
-  }
-
-  pop(): [K, V] | [typeof IsVoidVal] {
-    return this.removeLast();
-  }
-
-  clear(): void {
-    this.removeAll();
+    if (arguments.length === 1) {
+      this.enqueue(k, k);
+    } else {
+      this.enqueue(k, val);
+    }
   }
 
   addToFront(k: K, obj?: V): void {
@@ -559,6 +551,22 @@ export class LinkedQueue<V, K = any> {
       h.value
     ];
 
+  }
+
+  shift(): [K, V] | [typeof IsVoidVal] {
+    return this.dequeue();
+  }
+
+  unshift(k: K, obj?: V): void {
+    if (arguments.length === 1) {
+      this.addToFront(k, k as any);
+    } else {
+      this.addToFront(k, obj);
+    }
+  }
+
+  pop(): ([K, V] | [typeof IsVoidVal]) {
+    return this.removeLast();
   }
 
   removeLast(): ([K, V] | [typeof IsVoidVal]) {

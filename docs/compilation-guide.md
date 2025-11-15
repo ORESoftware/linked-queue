@@ -2,13 +2,17 @@
 
 This guide explains how to compile the TypeScript source code for `@oresoftware/linked-queue`.
 
-## Prerequisites
+## Building the Project
 
-- Node.js (>= 6.0.0)
+This project supports both CommonJS and ES Module formats.
+
+### Prerequisites
+
+- Node.js (v12 or higher)
 - npm or yarn
-- TypeScript compiler (installed via `npm install`)
+- TypeScript (installed as dev dependency)
 
-## Installation
+### Installation
 
 ```bash
 npm install
@@ -19,7 +23,25 @@ This will install all dependencies including:
 - Type definitions (`@types/node@^12.6.1`)
 - Development dependencies (suman, uuid)
 
-## Compilation
+### Build Commands
+
+```bash
+# Install dependencies
+npm install
+
+# Build both CommonJS and ESM formats (if npm run build is configured)
+npm run build
+
+# Or compile directly with TypeScript
+npx tsc
+```
+
+### Build Process
+
+The build process uses TypeScript configuration:
+
+- **tsconfig.json** - Compiles to CommonJS in `dist/`
+- If ESM support is needed, a separate `tsconfig.esm.json` can compile to ES2020 modules in `dist/esm/`
 
 ### Basic Compilation
 
@@ -46,12 +68,25 @@ This will:
 ### Output Files
 
 After compilation, you'll find in `dist/`:
-- `linked-queue.js` - Main compiled JavaScript file
+- `linked-queue.js` - Main compiled JavaScript file (CommonJS)
 - `linked-queue.d.ts` - TypeScript type definitions
 - `example.js` - Example file
 - `example.d.ts` - Example type definitions
 - `iterator.js` - Iterator implementation
 - `iterator.d.ts` - Iterator type definitions
+
+If ESM build is configured:
+- `dist/esm/linked-queue.js` - ES Module build
+
+### Testing the Build
+
+```bash
+# Test CommonJS
+node -e "const {LinkedQueue} = require('@oresoftware/linked-queue'); console.log('CommonJS works!');"
+
+# Test ESM (if ESM build exists)
+node --input-type=module -e "import {LinkedQueue} from '@oresoftware/linked-queue'; console.log('ESM works!');"
+```
 
 ## TypeScript Configuration
 
@@ -126,4 +161,3 @@ Or in TypeScript:
 ```typescript
 import {LinkedQueue} from '@oresoftware/linked-queue';
 ```
-

@@ -16,12 +16,16 @@ const testHead = function () {
   }
 
   let peek = q.peek();
-  if (!before && !IsVoid.check(peek[0])) {
-    console.error('before is null but peek is not void', peek, q.getOrderedList().map(v => v.key));
-    throw 'fml-1';
+  if (!before && !q.head) {
+    // Empty queue
+    if (!IsVoid.check(peek[0])) {
+      console.error('Empty queue but peek is not void', peek);
+      throw 'fml-1';
+    }
+    return;
   }
-  if (before && (IsVoid.check(peek[0]) || before.key !== peek[0])) {
-    console.error(before.key, peek && peek[0], q.getOrderedList().map(v => v.key));
+  if (!before || !peek || IsVoid.check(peek[0]) || before.key !== peek[0]) {
+    console.error('before:', before && before.key, 'peek:', peek && peek[0], 'ordered:', q.getOrderedList().map(v => v[0]));
     throw 'fml-1';
   }
 
@@ -37,8 +41,12 @@ const testTail = function () {
     v = v.after;
   }
 
-  if (after !== q.tail) {
-    console.error(after.key, q.tail && q.tail.key, q.getOrderedList().map(v => v.key));
+  if (!after && !q.tail) {
+    // Empty queue
+    return;
+  }
+  if (!after || !q.tail || after.key !== q.tail.key) {
+    console.error('after:', after && after.key, 'tail:', q.tail && q.tail.key, 'ordered:', q.getOrderedList().map(v => v[0]));
     throw new Error('fml 2');
   }
 
@@ -123,4 +131,3 @@ for (let i = 0; i < 1000000; i++) {
 }
 
 console.log('total time:', Date.now() - t);
-
