@@ -1,9 +1,8 @@
-'use strict';
+import {LinkedQueue} from '../../dist/esm/linked-queue.js';
+import * as assert from 'assert';
+import { v4 as uuid } from 'uuid';
 
-const {LinkedQueue} = require('../../dist/linked-queue');
-const assert = require('assert');
 const q = new LinkedQueue();
-const uuid = require('uuid/v4');
 
 const t = Date.now();
 
@@ -61,7 +60,7 @@ const isUnique = keys.map(v => parseInt(v)).reduce((a, b) => {
 
 const ln = keys.length;
 let v = q.getLength();
-assert(Number.isInteger(v), 'v is not an integer.');
+assert.ok(Number.isInteger(v), 'v is not an integer.');
 
 for (let i = 0; i < 1000000; i++) {
 
@@ -69,7 +68,7 @@ for (let i = 0; i < 1000000; i++) {
   fns[rand]();
 
   const newLn = q.getLength();
-  assert(Number.isInteger(newLn), 'newLn is not an integer.');
+  assert.ok(Number.isInteger(newLn), 'newLn is not an integer.');
 
   // console.log('prev length', v, 'new length:', newLn, 'rand is:', rand);
 
@@ -93,4 +92,4 @@ for (let i = 0; i < 1000000; i++) {
 
 }
 
-console.log('total time:', Date.now() - t);
+console.log('queue-fuzz passed! total time:', Date.now() - t, 'ms');

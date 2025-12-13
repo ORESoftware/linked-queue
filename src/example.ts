@@ -1,6 +1,4 @@
-'use strict';
-
-import {LinkedQueue} from "./linked-queue";
+import {LinkedQueue} from "./linked-queue.js";
 
 (async () => {
   const queue = new LinkedQueue<number, string>();

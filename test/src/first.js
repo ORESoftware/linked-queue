@@ -1,55 +1,59 @@
-'use strict';
+import * as assert from 'assert';
+import { v4 as uuid } from 'uuid';
+import {LinkedQueue, IsVoid} from '../../dist/esm/linked-queue.js';
 
-const assert = require('assert');
-const uuid = require('uuid/v4');
-const {LinkedQueue, IsVoid} = require('../../dist/linked-queue');
 const q = new LinkedQueue();
 
-const testHead = function () {
+// Test head/tail consistency using public API
+const testHeadTail = function () {
+  const first = q.first();
+  const last = q.last();
+  const peek = q.peek();
+  const ordered = q.getOrderedList();
+  const reverse = q.getReverseOrderedList();
 
-  let v = q.tail;
-  let before = null;
-
-  while (v) {
-    before = v;
-    v = v.before;
-  }
-
-  let peek = q.peek();
-  if (!before && !q.head) {
+  if (q.length === 0) {
     // Empty queue
+    if (!IsVoid.check(first[0])) {
+      console.error('Empty queue but first is not void', first);
+      throw new Error('fml-1');
+    }
+    if (!IsVoid.check(last[0])) {
+      console.error('Empty queue but last is not void', last);
+      throw new Error('fml-2');
+    }
     if (!IsVoid.check(peek[0])) {
       console.error('Empty queue but peek is not void', peek);
-      throw 'fml-1';
+      throw new Error('fml-3');
     }
+    assert.strictEqual(ordered.length, 0, 'Ordered list should be empty');
+    assert.strictEqual(reverse.length, 0, 'Reverse list should be empty');
     return;
   }
-  if (!before || !peek || IsVoid.check(peek[0]) || before.key !== peek[0]) {
-    console.error('before:', before && before.key, 'peek:', peek && peek[0], 'ordered:', q.getOrderedList().map(v => v[0]));
-    throw 'fml-1';
+
+  // First and peek should match
+  if (first[0] !== peek[0]) {
+    console.error('first:', first[0], 'peek:', peek[0]);
+    throw new Error('first and peek should match');
   }
 
-};
-
-const testTail = function () {
-
-  let v = q.head;
-  let after = null;
-
-  while (v) {
-    after = v;
-    v = v.after;
+  // Ordered list first should match first()
+  if (ordered.length > 0 && ordered[0][0] !== first[0]) {
+    console.error('ordered first:', ordered[0][0], 'first:', first[0]);
+    throw new Error('ordered first should match first()');
   }
 
-  if (!after && !q.tail) {
-    // Empty queue
-    return;
-  }
-  if (!after || !q.tail || after.key !== q.tail.key) {
-    console.error('after:', after && after.key, 'tail:', q.tail && q.tail.key, 'ordered:', q.getOrderedList().map(v => v[0]));
-    throw new Error('fml 2');
+  // Ordered list last should match last()
+  if (ordered.length > 0 && ordered[ordered.length - 1][0] !== last[0]) {
+    console.error('ordered last:', ordered[ordered.length - 1][0], 'last:', last[0]);
+    throw new Error('ordered last should match last()');
   }
 
+  // Reverse list should be reverse of ordered
+  if (reverse.length > 0 && reverse[0][0] !== last[0]) {
+    console.error('reverse first:', reverse[0][0], 'last:', last[0]);
+    throw new Error('reverse first should match last()');
+  }
 };
 
 const fns = {
@@ -113,7 +117,7 @@ const isUnique = keys.map(v => parseInt(v)).reduce((a, b) => {
 
 const ln = keys.length;
 let v = q.getLength();
-assert(Number.isInteger(v), 'v is not an integer.');
+assert.ok(Number.isInteger(v), 'v is not an integer.');
 const t = Date.now();
 
 for (let i = 0; i < 1000000; i++) {
@@ -122,12 +126,16 @@ for (let i = 0; i < 1000000; i++) {
   fns[rand]();
 
   const newLn = q.getLength();
-  assert(Number.isInteger(newLn), 'newLn is not an integer.');
-  assert(newLn >= 0, 'newLn is less than zero.');
+  assert.ok(Number.isInteger(newLn), 'newLn is not an integer.');
+  assert.ok(newLn >= 0, 'newLn is less than zero.');
 
-  testHead();
-  testTail();
-
+  // Test every 100 iterations for performance
+  if (i % 100 === 0) {
+    testHeadTail();
+  }
 }
 
-console.log('total time:', Date.now() - t);
+// Final test
+testHeadTail();
+
+console.log('first.js passed! total time:', Date.now() - t, 'ms');

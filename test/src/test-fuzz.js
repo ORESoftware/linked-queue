@@ -1,47 +1,13 @@
 #!/usr/bin/env node
-"use strict";
 /**
  * Major Fuzz Test for linked-queue
  * Tests 4000 random operations in a row to stress test the implementation
  * Based on live-mutex usage patterns and all available methods
  */
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
-Object.defineProperty(exports, "__esModule", { value: true });
-const assert = __importStar(require("assert"));
-const linked_queue_1 = require("../../dist/linked-queue");
-const crypto = __importStar(require("crypto"));
+import * as assert from 'assert';
+import {LinkedQueue, IsVoid} from '../../dist/esm/linked-queue.js';
+import * as crypto from 'crypto';
+
 function createNotifyObj(uuid, pid = Math.floor(Math.random() * 10000), ttl = 5000) {
     return {
         ws: { writable: Math.random() > 0.1 }, // 90% writable
@@ -51,27 +17,30 @@ function createNotifyObj(uuid, pid = Math.floor(Math.random() * 10000), ttl = 50
         keepLocksAfterDeath: false
     };
 }
+
 function generateUUID() {
     return crypto.randomBytes(16).toString('hex');
 }
+
 function testHeadTail(q) {
     // Verify head/tail consistency
     const first = q.first();
     const last = q.last();
     const peek = q.peek();
     if (q.length === 0) {
-        assert.ok(linked_queue_1.IsVoid.check(first[0]), 'First should be void when empty');
-        assert.ok(linked_queue_1.IsVoid.check(last[0]), 'Last should be void when empty');
-        assert.ok(linked_queue_1.IsVoid.check(peek[0]), 'Peek should be void when empty');
+        assert.ok(IsVoid.check(first[0]), 'First should be void when empty');
+        assert.ok(IsVoid.check(last[0]), 'Last should be void when empty');
+        assert.ok(IsVoid.check(peek[0]), 'Peek should be void when empty');
     }
     else {
-        assert.ok(!linked_queue_1.IsVoid.check(first[0]), 'First should not be void when not empty');
-        assert.ok(!linked_queue_1.IsVoid.check(last[0]), 'Last should not be void when not empty');
-        assert.ok(!linked_queue_1.IsVoid.check(peek[0]), 'Peek should not be void when not empty');
+        assert.ok(!IsVoid.check(first[0]), 'First should not be void when not empty');
+        assert.ok(!IsVoid.check(last[0]), 'Last should not be void when not empty');
+        assert.ok(!IsVoid.check(peek[0]), 'Peek should not be void when not empty');
         // First and peek should be the same
         assert.strictEqual(first[0], peek[0], 'First and peek should match');
     }
 }
+
 function runFuzzTest(versionName, LinkedQueueClass) {
     const q = new LinkedQueueClass();
     const operations = [];
@@ -118,7 +87,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
             // dequeue
             if (q.length > 0) {
                 const result = q.dequeue();
-                if (!linked_queue_1.IsVoid.check(result[0])) {
+                if (!IsVoid.check(result[0])) {
                     const key = result[0];
                     existingKeys.delete(key);
                     operations.push(`${operationIndex}: dequeue() -> ${key}`);
@@ -131,7 +100,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
                 const n = Math.min(Math.floor(Math.random() * 10) + 1, q.length);
                 const results = q.deq(n);
                 results.forEach(item => {
-                    if (Array.isArray(item) && !linked_queue_1.IsVoid.check(item[0])) {
+                    if (Array.isArray(item) && !IsVoid.check(item[0])) {
                         existingKeys.delete(item[0]);
                     }
                 });
@@ -144,7 +113,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
                 const keysArray = Array.from(existingKeys);
                 const keyToRemove = keysArray[Math.floor(Math.random() * keysArray.length)];
                 const result = q.remove(keyToRemove);
-                if (!linked_queue_1.IsVoid.check(result[0])) {
+                if (!IsVoid.check(result[0])) {
                     existingKeys.delete(keyToRemove);
                     operations.push(`${operationIndex}: remove(${keyToRemove})`);
                 }
@@ -156,7 +125,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
                 const keysArray = Array.from(existingKeys);
                 const keyToGet = keysArray[Math.floor(Math.random() * keysArray.length)];
                 const result = q.get(keyToGet);
-                assert.ok(!linked_queue_1.IsVoid.check(result[0]), `Should find key ${String(keyToGet)}`);
+                assert.ok(!IsVoid.check(result[0]), `Should find key ${String(keyToGet)}`);
                 operations.push(`${operationIndex}: get(${keyToGet})`);
             }
         },
@@ -174,7 +143,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
             // removeLast
             if (q.length > 0) {
                 const result = q.removeLast();
-                if (!linked_queue_1.IsVoid.check(result[0])) {
+                if (!IsVoid.check(result[0])) {
                     const key = result[0];
                     existingKeys.delete(key);
                     operations.push(`${operationIndex}: removeLast() -> ${key}`);
@@ -187,7 +156,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
                 try {
                     const randomKey = q.getRandomKey();
                     const result = q.remove(randomKey);
-                    if (!linked_queue_1.IsVoid.check(result[0])) {
+                    if (!IsVoid.check(result[0])) {
                         existingKeys.delete(randomKey);
                         operations.push(`${operationIndex}: remove(randomKey: ${randomKey})`);
                     }
@@ -224,8 +193,8 @@ function runFuzzTest(versionName, LinkedQueueClass) {
             const first = q.first();
             const last = q.last();
             if (q.length === 0) {
-                assert.ok(linked_queue_1.IsVoid.check(first[0]), 'First should be void when empty');
-                assert.ok(linked_queue_1.IsVoid.check(last[0]), 'Last should be void when empty');
+                assert.ok(IsVoid.check(first[0]), 'First should be void when empty');
+                assert.ok(IsVoid.check(last[0]), 'Last should be void when empty');
             }
             else if (q.length === 1) {
                 assert.strictEqual(first[0], last[0], 'First and last should match when length is 1');
@@ -248,7 +217,7 @@ function runFuzzTest(versionName, LinkedQueueClass) {
             const beforeLen = q.length;
             let count = 0;
             for (const [key, value] of q.dequeueIterator()) {
-                if (!linked_queue_1.IsVoid.check(key)) {
+                if (!IsVoid.check(key)) {
                     count++;
                     existingKeys.delete(key);
                 }
@@ -331,24 +300,18 @@ function runFuzzTest(versionName, LinkedQueueClass) {
     assert.strictEqual(q.length, q.getLength(), 'Final length and getLength should match');
     console.log('✓ All invariants maintained throughout fuzz test\n');
 }
+
 // Main execution
 console.log('Linked-Queue Major Fuzz Test');
 console.log('Testing 4000 random operations with full type checking\n');
+
 try {
-    runFuzzTest('Latest (2.1.129)', linked_queue_1.LinkedQueue);
-    console.log('\n✓ Fuzz test passed for latest version!');
+    runFuzzTest('v3.0.0', LinkedQueue);
+    console.log('\n✓ Fuzz test passed!');
 }
 catch (err) {
     console.error('\n✗ Fuzz test failed:', err.message);
     process.exit(1);
 }
-// Try to test current version if available
-try {
-    const currentModule = require('../live-mutex/node_modules/@oresoftware/linked-queue');
-    runFuzzTest('Current (0.1.106)', currentModule.LinkedQueue);
-    console.log('\n✓ Fuzz test passed for current version!');
-}
-catch (err) {
-    console.log(`\nNote: Could not test current version: ${err.message}`);
-}
+
 console.log('\n✓ All fuzz tests completed successfully!');

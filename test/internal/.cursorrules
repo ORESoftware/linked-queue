@@ -1,0 +1,79 @@
+# Internal Tests - Private Field Access
+
+This folder contains tests that access **truly private fields** (`#head`, `#tail`, `#lookup`) of the LinkedQueue class for thorough testing of internal state consistency.
+
+## How Private Fields Work
+
+Starting with v3.x, LinkedQueue uses JavaScript's **true private fields** (the `#` prefix syntax):
+
+```typescript
+class LinkedQueue<V, K = V> {
+  #lookup = new Map<K, LinkedQueueValue<V, K>>();
+  #head: LinkedQueueValue<V, K> | null = null;
+  #tail: LinkedQueueValue<V, K> | null = null;
+  // ...
+}
+```
+
+Unlike TypeScript's `private` keyword (which is only compile-time enforcement), `#` private fields are **truly inaccessible** at runtime - they cannot be accessed via `obj.#field` or even `obj['#field']`.
+
+## How These Tests Access Private Fields
+
+The LinkedQueue class exposes a special testing-only method:
+
+```typescript
+__unsafeGetInternalsForTesting(): LinkedQueueInternals<V, K>
+```
+
+This method returns a snapshot of the internal state:
+- `head`: The head node of the linked list
+- `tail`: The tail node of the linked list  
+- `lookup`: The Map used for O(1) key lookups
+
+## Purpose
+
+These tests are designed to:
+- Verify head/tail pointer consistency after operations
+- Check internal linked list structure integrity  
+- Validate that lookup Map stays in sync with the linked list
+- Catch edge cases that might not be visible through the public API alone
+
+## Important Notes
+
+1. **`__unsafeGetInternalsForTesting()` is for testing only** - it exposes internal state that may change between versions
+2. These tests **supplement (not replace)** the public API tests in `test/src/`
+3. If internal implementation changes, these tests may need updating
+4. Production code should NEVER call `__unsafeGetInternalsForTesting()`
+
+## Running These Tests
+
+```bash
+# Run all internal tests
+npm run test:internal
+
+# Run individual tests
+node test/internal/linked-list-integrity.js
+node test/internal/head-tail-fuzz.js
+node test/internal/lookup-consistency.js
+```
+
+## Alternative: Without the Testing Helper
+
+If you need to test internal state without the helper method (e.g., testing a build without it), you would need to:
+
+1. Modify the source to use TypeScript `private` instead of `#` (compile-time only)
+2. Cast to `any` to bypass TypeScript checks: `(queue as any).head`
+
+However, the `__unsafeGetInternalsForTesting()` approach is preferred as it:
+- Makes the testing intent explicit
+- Works with true `#` private fields
+- Can be stripped in production builds if needed
+- Documents that accessing internals is intentional
+
+## When to Update
+
+Update these tests when:
+- Internal data structure changes (new fields, renamed fields)
+- Adding new methods that modify head/tail pointers
+- Debugging issues where public API tests pass but behavior is incorrect
+- The `__unsafeGetInternalsForTesting()` API changes

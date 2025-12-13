@@ -1,17 +1,18 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "2.2.13",
+  "version": "3.1.11",
   "description": "Synchronous queue implementation with constant/linear time operations.",
   "main": "./dist/linked-queue.js",
   "module": "./dist/esm/linked-queue.js",
   "types": "./dist/linked-queue.d.ts",
   "typings": "./dist/linked-queue.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/linked-queue.d.ts",
       "import": "./dist/esm/linked-queue.js",
       "require": "./dist/linked-queue.js",
-      "default": "./dist/linked-queue.js"
+      "default": "./dist/esm/linked-queue.js"
     }
   },
   "files": [
@@ -22,7 +23,15 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc && tsc -p tsconfig.esm.json",
-    "test": "suman test/src --force-match"
+    "test": "node --test test/node-test/*.test.js",
+    "test:core": "node --test test/node-test/core.test.js",
+    "test:iterators": "node --test test/node-test/iterators.test.js",
+    "test:edge": "node --test test/node-test/edge-cases.test.js",
+    "test:fuzz": "node --test test/node-test/fuzz.test.js",
+    "test:internal": "node --test test/node-test/internal.test.js",
+    "test:internal:standalone": "node test/internal/linked-list-integrity.js && node test/internal/head-tail-fuzz.js && node test/internal/lookup-consistency.js",
+    "test:legacy": "node test/src/test-fuzz.js && node test/src/linked-queue-fuzz.js && node test/src/queue-fuzz.js && node test/src/basic-queue-fuzz.js",
+    "test:all": "npm run test && npm run test:internal:standalone && npm run test:legacy"
   },
   "repository": {
     "type": "git",
@@ -42,14 +51,13 @@
     "url": "https://github.com/ORESoftware/linked-queue/issues"
   },
   "homepage": "https://github.com/ORESoftware/linked-queue#readme",
-  "dependencies": {
-    "chalk": "^2.4.2"
+  "engines": {
+    "node": ">=22.0.0"
   },
   "devDependencies": {
-    "@types/node": "^12.6.1",
-    "suman": "^1.1.51244",
-    "typescript": "^5.9.3",
-    "uuid": "^3.2.1"
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "uuid": "^11.0.3"
   },
   "r2g": {
     "test": "echo noop"

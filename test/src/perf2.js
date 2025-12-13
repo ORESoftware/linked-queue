@@ -1,4 +1,4 @@
-
+// Simple array performance test for comparison
 
 const values = [];
 
@@ -8,4 +8,4 @@ for (let i = 0; i < 20000; i++) {
   values.unshift({});
 }
 
-console.log('total time:', Date.now() - t);
+console.log('perf2.js - array unshift time:', Date.now() - t, 'ms');

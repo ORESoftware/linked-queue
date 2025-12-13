@@ -1,78 +1,100 @@
-'use strict';
-
 import * as util from 'util';
-import chalk from "chalk";
 
 export const r2gSmokeTest = function () {
   return true;
 };
 
 export interface LinkedQueueValue<V, K> {
-  after?: LinkedQueueValue<V, K>,
-  before?: LinkedQueueValue<V, K>,
+  after?: LinkedQueueValue<V, K> | null,
+  before?: LinkedQueueValue<V, K> | null,
   value: V,
-  key: any,
+  key: K,
 }
 
 export type IteratorFunction<T, V> = (val: [T, V], index: number) => V;
 
-const flattenDeep = (arr: Array<any>): Array<any> => {
-  return Array.isArray(arr) ? arr.reduce((a, b) => [...flattenDeep(a), ...flattenDeep(b)], []) : [arr];
+const flattenDeep = (arr: unknown[]): unknown[] => {
+  return Array.isArray(arr) 
+    ? arr.reduce<unknown[]>((a, b) => [...flattenDeep(a as unknown[]), ...flattenDeep(b as unknown[])], []) 
+    : [arr];
 };
 
 const IsVoidVal = Symbol('null result');
 
 export const IsVoid = {
-  check: (v: any) => v === IsVoidVal
+  check: (v: unknown) => v === IsVoidVal
 }
 
-export class LinkedQueue<V, K = any> {
+/**
+ * Internal state structure exposed for testing purposes only.
+ * @internal
+ */
+export interface LinkedQueueInternals<V, K> {
+  head: LinkedQueueValue<V, K> | null;
+  tail: LinkedQueueValue<V, K> | null;
+  lookup: Map<K, LinkedQueueValue<V, K>>;
+}
 
-  private lookup = new Map<K, LinkedQueueValue<V, K>>();
-  private head: LinkedQueueValue<V, K> | null = null;
-  private tail: LinkedQueueValue<V, K> = null;
+export class LinkedQueue<V, K = V> {
 
-  static IsVoid(v: any){
+  // True private fields using # syntax - not accessible outside the class
+  #lookup = new Map<K, LinkedQueueValue<V, K>>();
+  #head: LinkedQueueValue<V, K> | null = null;
+  #tail: LinkedQueueValue<V, K> | null = null;
+
+  /**
+   * Exposes internal state for testing purposes ONLY.
+   * DO NOT use this in production code - internal structure may change.
+   * @internal
+   */
+  __unsafeGetInternalsForTesting(): LinkedQueueInternals<V, K> {
+    return {
+      head: this.#head,
+      tail: this.#tail,
+      lookup: this.#lookup
+    };
+  }
+
+  static IsVoid(v: unknown){
     return v === IsVoidVal;
   }
 
-  checkIfVoid(v: any){
+  checkIfVoid(v: unknown){
     return v === IsVoidVal;
   }
 
   getComputedProperties() {
     return {
-      size: this.lookup.size
+      size: this.#lookup.size
     };
   }
 
   toJSON(){
     return {
-      size: this.lookup.size
+      size: this.#lookup.size
     }
   }
 
   [util.inspect.custom]() {
-    //TODO: log head/tail
     return {
-      size: this.lookup.size
+      size: this.#lookup.size
     }
   }
 
   get size() {
-    return this.lookup.size;
+    return this.#lookup.size;
   }
 
   get length() {
-    return this.lookup.size;
+    return this.#lookup.size;
   }
 
   getLength(): number {
-    return this.lookup.size;
+    return this.#lookup.size;
   }
 
   getSize(): number {
-    return this.lookup.size;
+    return this.#lookup.size;
   }
 
   iterator() {
@@ -85,18 +107,18 @@ export class LinkedQueue<V, K = any> {
 
   [Symbol.iterator](): Iterator<[K, V]> {
 
-    let v = this.head;
+    let v = this.#head;
 
     return {
 
-      next(): IteratorResult<[K, V], any> {
+      next(): IteratorResult<[K, V], null> {
 
         if (!v) {
           return {value: null, done: true}
         }
 
         const [key, value] = [v.key, v.value];
-        v = v.after;
+        v = v.after ?? null;
 
         return {
           value: [key, value],
@@ -112,24 +134,24 @@ export class LinkedQueue<V, K = any> {
     return {
       [Symbol.iterator]: (): Iterator<[K, V]> => {
 
-        let v = this.tail;
+        let v = this.#tail;
 
         return {
 
           next(): IteratorResult<[K, V]> {
 
             const r = v ? {
-              value: [v.key, v.value],
+              value: [v.key, v.value] as [K, V],
               // empty array [] means we are done,
               // since we return [] instead of null as a pattern here
               done: false
             } : {
               done: true,
-              value: [IsVoidVal] as any
+              value: [IsVoidVal] as unknown as [K, V]
             }
 
             if (v) {
-              v = v.before;
+              v = v.before ?? null;
             }
 
             return r
@@ -142,33 +164,32 @@ export class LinkedQueue<V, K = any> {
   }
 
   // Example async processing function for each item (replace with your own logic)
-  private async processItem(key: K, value: V): Promise<V> {
+  async #processItem(_key: K, value: V): Promise<V> {
     // Simulate an async task, e.g., fetching data or processing the item
     return new Promise((resolve) => {
       // Replace this with your actual async task
       setTimeout(() => {
-        console.log(`Processing item with key: ${key}, value: ${value}`);
         resolve(value); // Return the value, processed if needed
       }, 100);
     });
   }
 
   async *asyncIterator(): AsyncGenerator<[K, V], void, unknown> {
-    let v = this.head;
+    let v = this.#head;
     while (v) {
-      const processedValue = await this.processItem(v.key, v.value); // Async processing per item
+      const processedValue = await this.#processItem(v.key, v.value); // Async processing per item
       yield [v.key, processedValue];
-      v = v.after;
+      v = v.after ?? null;
     }
   }
 
   // Async iterator for reverse traversal
   async *asyncReverseIterator(): AsyncGenerator<[K, V], void, unknown> {
-    let v = this.tail;
+    let v = this.#tail;
     while (v) {
-      const processedValue = await this.processItem(v.key, v.value); // Async processing per item
+      const processedValue = await this.#processItem(v.key, v.value); // Async processing per item
       yield [v.key, processedValue];
-      v = v.before;
+      v = v.before ?? null;
     }
   }
 
@@ -181,15 +202,17 @@ export class LinkedQueue<V, K = any> {
 
         return {
 
-          next(): IteratorResult<[K, V], any> {
+          next(): IteratorResult<[K, V]> {
 
-            const d = self.dequeue() as [K, V];
+            const d = self.dequeue();
+
+            if (IsVoid.check(d[0])) {
+              return { value: undefined, done: true };
+            }
 
             return {
-              value: d,
-              // empty array [] means we are done,
-              // since we return [] instead of null as a pattern here
-              done: IsVoid.check(d[0])
+              value: d as [K, V],
+              done: false
             }
           }
         }
@@ -198,8 +221,8 @@ export class LinkedQueue<V, K = any> {
 
   }
 
-  getRandomKey() {
-    const size = this.lookup.size;
+  getRandomKey(): K {
+    const size = this.#lookup.size;
 
     if (size < 1) {
       throw new Error('Cannot get random key from empty queue.')
@@ -207,105 +230,110 @@ export class LinkedQueue<V, K = any> {
 
     const r = Math.floor(Math.random() * size);
     let i = 0;
-    for (var k of this.lookup.keys()) {
+    let k: K | undefined;
+    for (const key of this.#lookup.keys()) {
+      k = key;
       if (i === r) {
         break;
       }
       i++;
     }
 
-    return k;
+    return k as K;
   }
 
-  getRandomItem() : [K,V] | [typeof IsVoidVal] {
+  getRandomItem() : [K, V] | [typeof IsVoidVal] {
     try {
-      var v = this.lookup.get(this.getRandomKey());
-    } catch (err) {
+      const v = this.#lookup.get(this.getRandomKey());
+      if (!v) {
+        return [IsVoidVal];
+      }
+      return [v.key, v.value];
+    } catch {
       return [IsVoidVal];
     }
-    return [v.key, v.value]
   }
 
   remove(k: K): [K, V] | [typeof IsVoidVal] {
 
-    const v = this.lookup.get(k);
-    this.lookup.delete(k);
+    const v = this.#lookup.get(k);
+    this.#lookup.delete(k);
 
     if (!v) {
       return [IsVoidVal];
     }
 
-    let before = v.before;
-    let after = v.after;
+    const before = v.before;
+    const after = v.after;
 
     if (before) {
-      before.after = after || null;
+      before.after = after ?? null;
     }
 
     if (after) {
-      after.before = before || null;
+      after.before = before ?? null;
     }
 
-    if (this.head === v) {
-      this.head = v.after || null;
+    if (this.#head === v) {
+      this.#head = v.after ?? null;
     }
 
-    if (this.tail === v) {
-      this.tail = v.before || null;
+    if (this.#tail === v) {
+      this.#tail = v.before ?? null;
     }
 
     return [v.key, v.value];
   }
 
   contains(k: K): boolean {
-    return Boolean(this.lookup.get(k));
+    return this.#lookup.has(k);
   }
 
   get(k: K): ([K, V] | [typeof IsVoidVal]) {
-    const v = this.lookup.get(k);
+    const v = this.#lookup.get(k);
     return v ? [v.key, v.value] : [IsVoidVal];
   }
 
   peek(): [K, V] | [typeof IsVoidVal] {
-    return !this.head ? [IsVoidVal] : [
-      this.head.key,
-      this.head.value
+    return !this.#head ? [IsVoidVal] : [
+      this.#head.key,
+      this.#head.value
     ];
   }
 
-  getOrderedList(): Array<[K,V]> {
-    const ret: [K,V][] = [];
-    let v = this.head;
+  getOrderedList(): Array<[K, V]> {
+    const ret: [K, V][] = [];
+    let v = this.#head;
 
     while (v) {
-      ret.push([v.key,v.value]);
-      v = v.after;
+      ret.push([v.key, v.value]);
+      v = v.after ?? null;
     }
 
     return ret;
   }
 
-  map(fn: IteratorFunction<V, any>, ctx?: any): Array<any> {
+  map<R>(fn: (val: [K, V], index: number) => R, ctx?: unknown): Array<R> {
 
-    let v = this.head;
+    let v = this.#head;
     let index = 0;
-    ctx = ctx || null;
+    ctx = ctx ?? null;
 
-    const ret: Array<any> = [];
+    const ret: Array<R> = [];
 
     while (v) {
       ret.push(fn.call(ctx, [v.key, v.value], index++));
-      v = v.after;
+      v = v.after ?? null;
     }
 
     return ret;
   }
 
-  filter(fn: IteratorFunction<V, boolean>, ctx?: any): [K, V][] {
+  filter(fn: (val: [K, V], index: number) => boolean, ctx?: unknown): [K, V][] {
 
-    let v = this.head;
+    let v = this.#head;
     let index = 0;
-    ctx = ctx || null;
+    ctx = ctx ?? null;
 
     const ret: [K, V][] = [];
 
@@ -313,55 +341,55 @@ export class LinkedQueue<V, K = any> {
       if (fn.call(ctx, [v.key, v.value], index++)) {
         ret.push([v.key, v.value]);
       }
-      v = v.after;
+      v = v.after ?? null;
     }
 
     return ret;
   }
 
-  insertInFrontOf() {
+  insertInFrontOf(): never {
     throw new Error('not yet implemented.');
   }
 
-  insertBehind() {
+  insertBehind(): never {
     throw new Error('not yet implemented.');
   }
 
-  insertAtIndex(k: K, v: V) {
+  insertAtIndex(_k: K, _v: V): never {
     throw new Error('not yet implemented.');
   }
 
   first(): ([K, V] | [typeof IsVoidVal]) {
-    return !this.head ? [IsVoidVal] : [
-      this.head.key,
-      this.head.value
+    return !this.#head ? [IsVoidVal] : [
+      this.#head.key,
+      this.#head.value
     ]
   }
 
   last(): ([K, V] | [typeof IsVoidVal]) {
-    return !this.tail ? [IsVoidVal] : [
-      this.tail.key,
-      this.tail.value
+    return !this.#tail ? [IsVoidVal] : [
+      this.#tail.key,
+      this.#tail.value
     ]
   }
 
-  getReverseOrderedList(): [K,V][] {
+  getReverseOrderedList(): [K, V][] {
 
-    const ret: [K,V][] = [];
-    let v = this.tail;
+    const ret: [K, V][] = [];
+    let v = this.#tail;
 
     while (v) {
       ret.push([v.key, v.value]);
-      v = v.before;
+      v = v.before ?? null;
     }
 
     return ret;
   }
 
-  removeAll() {
-    this.head = null;
-    this.tail = null;
-    this.lookup.clear();
+  removeAll(): void {
+    this.#head = null;
+    this.#tail = null;
+    this.#lookup.clear();
   }
 
   clear(): void {
@@ -369,14 +397,14 @@ export class LinkedQueue<V, K = any> {
   }
 
   // Array-like method aliases for convenience
-  push(k?: any, val?: any): void {
+  push(k: K, val?: V): void {
     if (arguments.length === 0) {
       throw new Error(`Please pass an argument to '${this.push.name}()'.`);
     }
     if (arguments.length === 1) {
-      this.enqueue(k, k);
+      this.enqueue(k, k as unknown as V);
     } else {
-      this.enqueue(k, val);
+      this.enqueue(k, val as V);
     }
   }
 
@@ -391,74 +419,81 @@ export class LinkedQueue<V, K = any> {
     }
 
     if (arguments.length === 1) {
-      obj = <any>k;
+      obj = k as unknown as V;
     }
 
-    if (this.lookup.get(k)) {
-      throw new Error(chalk.magenta(`The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}`) +
-        chalk.magenta.bold(`Either remove the already enqueued item, or pass a unique value as the first argument to '${this.addToFront.name || 'unknown'}()'.`));
+    if (this.#lookup.get(k)) {
+      const existing = this.#lookup.get(k)!;
+      throw new Error(
+        `The following object/value already exists in the queue: ${util.inspect(existing.key).slice(0, 100)}. ` +
+        `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.addToFront.name || 'unknown'}()'.`
+      );
     }
 
-    const v = <LinkedQueueValue<V, K>>{
-      value: obj,
+    const v: LinkedQueueValue<V, K> = {
+      value: obj as V,
       key: k,
+      after: null,
+      before: null,
     };
 
-    this.lookup.set(k, v);
-    const h = this.head;
+    this.#lookup.set(k, v);
+    const h = this.#head;
 
     if (h) {
       if (h.before) {
-        throw new Error('The queue head should not have an "before" pointer.');
+        throw new Error('The queue head should not have a "before" pointer.');
       }
       h.before = v;
     }
 
-    v.after = h || null;
-    this.head = v;
+    v.after = h ?? null;
+    this.#head = v;
 
-    if (!this.tail) {
-      this.tail = v;
+    if (!this.#tail) {
+      this.#tail = v;
     }
 
   }
 
-  enq(k?: any, val?: any): void {
+  enq(k: K, val?: V): void {
     if (arguments.length === 0) {
       throw new Error(`Please pass an argument to '${this.enq.name}()'.`);
     }
     if (arguments.length === 1) {
-      val = k;
+      val = k as unknown as V;
     }
-    this.enqueue(k, val);
+    this.enqueue(k, val as V);
   }
 
-  enqueue(k: any, val?: any): void {
+  enqueue(k: K, val?: V): void {
 
     if (arguments.length < 1) {
       throw new Error(`Please pass an argument to '${this.enqueue.name}()'.`);
     }
 
     if (arguments.length === 1) {
-      val = k;
+      val = k as unknown as V;
     }
 
-    if (this.lookup.get(k)) {
+    if (this.#lookup.get(k)) {
+      const existing = this.#lookup.get(k)!;
       throw new Error(
-        chalk.magenta(
-          `The following object/value already exists in the queue. ${util.inspect(this.lookup.get(k).key).slice(0, 100)}. `) +
-        chalk.magenta.bold(
-          `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq.name || 'unknown'}()'.`));
+        `The following object/value already exists in the queue: ${util.inspect(existing.key).slice(0, 100)}. ` +
+        `Either remove the already enqueued item, or pass a unique value as the first argument to '${this.enq.name || 'unknown'}()'.`
+      );
     }
 
-    const v = <LinkedQueueValue<V, K>>{
+    const v: LinkedQueueValue<V, K> = {
       key: k,
-      value: val,
+      value: val as V,
+      after: null,
+      before: null,
     };
 
-    this.lookup.set(k, v);
+    this.#lookup.set(k, v);
 
-    const t = this.tail;
+    const t = this.#tail;
 
     if (t) {
       if (t.after) {
@@ -467,41 +502,41 @@ export class LinkedQueue<V, K = any> {
       t.after = v;
     }
 
-    v.before = t || null;
-    this.tail = v;
+    v.before = t ?? null;
+    this.#tail = v;
 
-    if (!this.head) {
-      this.head = v;
+    if (!this.#head) {
+      this.#head = v;
     }
 
   }
 
 
-  forEach(fn: IteratorFunction<V, void>, ctx?: any): this {
-    let v = this.head;
+  forEach(fn: (val: [K, V], index: number) => void, ctx?: unknown): this {
+    let v = this.#head;
     let index = 0;
-    ctx = ctx || null;
+    ctx = ctx ?? null;
 
     while (v) {
       fn.call(ctx, [v.key, v.value], index++);
-      v = v.after;
+      v = v.after ?? null;
     }
     return this;
   }
 
-  dequeueEach(fn: IteratorFunction<V, void>, ctx?: any): this {
+  dequeueEach(fn: (val: [K, V], index: number) => void, ctx?: unknown): this {
 
     let index = 0;
-    ctx = ctx || null;
+    ctx = ctx ?? null;
 
-    while (this.head) {
-      const h = this.head;
-      this.lookup.delete(this.head.key);
-      this.head = this.head.after || null;
-      if (this.head) {
-        this.head.before = null;
+    while (this.#head) {
+      const h = this.#head;
+      this.#lookup.delete(this.#head.key);
+      this.#head = this.#head.after ?? null;
+      if (this.#head) {
+        this.#head.before = null;
       } else {
-        this.tail = null;
+        this.#tail = null;
       }
       fn.call(ctx, [h.key, h.value], index++);
     }
@@ -509,7 +544,7 @@ export class LinkedQueue<V, K = any> {
     return this;
   }
 
-  deq(n?: number): [K, V] | [typeof IsVoidVal] | LinkedQueueValue<V,K>[] {
+  deq(n?: number): [K, V] | [typeof IsVoidVal] | Array<[K, V] | [typeof IsVoidVal]> {
     // If no argument, behave like dequeue()
     if (arguments.length === 0 || n === undefined) {
       return this.dequeue();
@@ -521,30 +556,31 @@ export class LinkedQueue<V, K = any> {
     if (n < 1) {
       throw new Error('Must provide a positive integer as an argument to deq().');
     }
-    const items: LinkedQueueValue<V,K>[] = [];
-    let v = true as any;
-    while (v && items.length < n) {
-      if ((v = this.dequeue())) {
-        items.push(v);
+    const items: Array<[K, V] | [typeof IsVoidVal]> = [];
+    while (items.length < n && this.#head) {
+      const item = this.dequeue();
+      items.push(item);
+      if (IsVoid.check(item[0])) {
+        break;
       }
     }
     return items;
   }
 
   dequeue(): [K, V] | [typeof IsVoidVal] {
-    const h = this.head;
+    const h = this.#head;
     if (!h) {
-      if (this.tail) {
+      if (this.#tail) {
         throw new Error('tail should not be defined if there is no head.');
       }
       return [IsVoidVal];
     }
-    this.lookup.delete(h.key);
-    this.head = h.after || null;
-    if (this.head) {
-      this.head.before = null;
+    this.#lookup.delete(h.key);
+    this.#head = h.after ?? null;
+    if (this.#head) {
+      this.#head.before = null;
     } else {
-      this.tail = null;
+      this.#tail = null;
     }
     return [
       h.key,
@@ -559,7 +595,7 @@ export class LinkedQueue<V, K = any> {
 
   unshift(k: K, obj?: V): void {
     if (arguments.length === 1) {
-      this.addToFront(k, k as any);
+      this.addToFront(k, k as unknown as V);
     } else {
       this.addToFront(k, obj);
     }
@@ -571,23 +607,23 @@ export class LinkedQueue<V, K = any> {
 
   removeLast(): ([K, V] | [typeof IsVoidVal]) {
 
-    const t = this.tail;
+    const t = this.#tail;
 
     if (!t) {
-      if (this.head) {
+      if (this.#head) {
         throw new Error('head should not be defined if there is no tail.');
       }
       return [IsVoidVal];
     }
 
-    this.lookup.delete(t.key);
+    this.#lookup.delete(t.key);
 
-    this.tail = t.before || null;
+    this.#tail = t.before ?? null;
 
-    if (this.tail) {
-      this.tail.after = null;
+    if (this.#tail) {
+      this.#tail.after = null;
     } else {
-      this.head = null;
+      this.#head = null;
     }
 
     return [
@@ -597,4 +633,3 @@ export class LinkedQueue<V, K = any> {
   }
 
 }
-
