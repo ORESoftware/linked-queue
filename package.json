@@ -1,6 +1,6 @@
 {
   "name": "@oresoftware/linked-queue",
-  "version": "3.1.11",
+  "version": "3.1.12",
   "description": "Synchronous queue implementation with constant/linear time operations.",
   "main": "./dist/linked-queue.js",
   "module": "./dist/esm/linked-queue.js",
@@ -22,7 +22,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "tsc && tsc -p tsconfig.esm.json",
+    "build": "tsc && node scripts/write-package-boundaries.cjs && tsc -p tsconfig.esm.json && node scripts/write-package-boundaries.cjs",
     "test": "node --test test/node-test/*.test.js",
     "test:core": "node --test test/node-test/core.test.js",
     "test:iterators": "node --test test/node-test/iterators.test.js",
@@ -60,6 +60,6 @@
     "uuid": "^11.0.3"
   },
   "r2g": {
-    "test": "echo noop"
+    "test": "node .r2g/tests/smoke-test.cjs"
   }
 }
