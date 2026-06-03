@@ -60,6 +60,6 @@
     "uuid": "^11.0.3"
   },
   "r2g": {
-    "test": "node .r2g/tests/smoke-test.cjs"
+    "test": "node .r2g/tests/phase-contract.cjs --phase-z"
   }
 }
