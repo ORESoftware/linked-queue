@@ -31,7 +31,10 @@
     "test:internal": "node --test test/node-test/internal.test.js",
     "test:internal:standalone": "node test/internal/linked-list-integrity.js && node test/internal/head-tail-fuzz.js && node test/internal/lookup-consistency.js",
     "test:legacy": "node test/src/test-fuzz.js && node test/src/linked-queue-fuzz.js && node test/src/queue-fuzz.js && node test/src/basic-queue-fuzz.js",
-    "test:all": "npm run test && npm run test:internal:standalone && npm run test:legacy"
+    "test:all": "npm run test && npm run test:internal:standalone && npm run test:legacy",
+    "lint:ores": "if [ -f .ores-lint/lint.sh ]; then sh .ores-lint/lint.sh; else echo 'ores-lint not installed'; fi",
+    "prepublishOnly": "npm run lint:ores",
+    "prebuild": "npm run lint:ores"
   },
   "repository": {
     "type": "git",
@@ -61,5 +64,13 @@
   },
   "r2g": {
     "test": "node .r2g/tests/phase-contract.cjs --phase-z"
+  },
+  "oresLint": {
+    "note": "Declared, not installed. ores-lint resolves these from a global install - see .ores-lint/README.md",
+    "requires": {
+      "eslint": ">=9",
+      "typescript-eslint": ">=8 (optional; without it .ts files are skipped)"
+    },
+    "install": "npm i -g eslint typescript-eslint"
   }
 }
